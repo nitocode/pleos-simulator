@@ -1,0 +1,197 @@
+@import "tailwindcss";
+
+/*
+ * Jetons du banc d'essai (page autour des écrans) : identiques pour toutes les marques.
+ */
+@theme {
+  --font-sans: "Asta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-bench-bg: #101215;
+  --color-bench-panel: #181b20;
+  --color-bench-raised: #22262d;
+  --color-bench-line: #2b3038;
+  --color-bench-ink: #dde1e6;
+  --color-bench-dim: #8a929d;
+  --color-bench-accent: #3b82f6;
+
+  --ease-ui: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.28, 0.64, 1);
+
+  --animate-blink: blink 0.8s steps(1) infinite;
+  --animate-pulse-ring: pulse-ring 0.9s ease-in-out infinite;
+  --animate-wiggle: wiggle 0.24s ease-in-out infinite alternate;
+  --animate-glow: glow 1.6s ease-in-out infinite;
+
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.14; }
+  }
+  @keyframes pulse-ring {
+    50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--ui-crit) 30%, transparent); }
+  }
+  @keyframes wiggle {
+    from { transform: rotate(-1.3deg); }
+    to { transform: rotate(1.3deg); }
+  }
+  @keyframes glow {
+    50% { transform: scaleX(0.84); opacity: 0.72; }
+  }
+}
+
+/*
+ * Jetons sémantiques de l'interface embarquée.
+ * Chaque marque fournit les valeurs --ui-* sous sa classe racine (voir src/brands/<marque>/theme.css),
+ * ce qui permet d'écrire les composants avec les mêmes utilitaires : bg-surface, text-ink, border-line…
+ */
+@theme inline {
+  --color-bg: var(--ui-bg);
+  --color-drive: var(--ui-drive);
+  --color-surface: var(--ui-surface);
+  --color-surface-2: var(--ui-surface-2);
+  --color-surface-3: var(--ui-surface-3);
+  --color-line: var(--ui-line);
+  --color-ink: var(--ui-ink);
+  --color-ink-2: var(--ui-ink-2);
+  --color-ink-3: var(--ui-ink-3);
+  --color-accent: var(--ui-accent);
+  --color-accent-soft: var(--ui-accent-soft);
+  --color-on-accent: var(--ui-on-accent);
+  --color-ok: var(--ui-ok);
+  --color-warn: var(--ui-warn);
+  --color-crit: var(--ui-crit);
+  --color-cool: var(--ui-cool);
+  --color-heat: var(--ui-heat);
+  --color-heat-soft: var(--ui-heat-soft);
+  --color-cool-soft: var(--ui-cool-soft);
+  --color-scrim: var(--ui-scrim);
+  --shadow-card: var(--ui-shadow);
+  --shadow-pop: var(--ui-shadow-pop);
+}
+
+/* Variante « nuit » propre à l'écran simulé (indépendante du thème du navigateur). */
+@custom-variant night (&:where(.night, .night *));
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-bench-bg);
+    color: var(--color-bench-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  button {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-bench-accent);
+    outline-offset: 2px;
+  }
+  input[type="range"] {
+    accent-color: var(--color-bench-accent);
+  }
+}
+
+@layer utilities {
+  /* Retour tactile : léger enfoncement à l'appui. */
+  .press {
+    transition: transform 0.12s var(--ease-ui), background-color 0.2s, color 0.2s, opacity 0.2s;
+  }
+  .press:active {
+    transform: scale(0.95);
+  }
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ui-surface-3) transparent;
+  }
+}
+
+/* ---------- Transitions Vue partagées ---------- */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.22s var(--ease-ui);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: transform 0.34s var(--ease-ui), opacity 0.26s var(--ease-ui);
+}
+.sheet-enter-from,
+.sheet-leave-to {
+  transform: translateY(28px);
+  opacity: 0;
+}
+
+.drop-enter-active,
+.drop-leave-active {
+  transition: transform 0.22s var(--ease-ui), opacity 0.18s var(--ease-ui);
+  transform-origin: top right;
+}
+.drop-enter-from,
+.drop-leave-to {
+  transform: translateY(-8px) scale(0.97);
+  opacity: 0;
+}
+
+.pop-enter-active {
+  transition: transform 0.3s var(--ease-spring), opacity 0.2s var(--ease-ui);
+}
+.pop-leave-active {
+  transition: transform 0.18s var(--ease-ui), opacity 0.18s var(--ease-ui);
+}
+.pop-enter-from,
+.pop-leave-to {
+  transform: scale(0.94);
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.24s var(--ease-ui), opacity 0.2s var(--ease-ui);
+}
+.slide-enter-from {
+  transform: translateX(14px);
+  opacity: 0;
+}
+.slide-leave-to {
+  transform: translateX(-10px);
+  opacity: 0;
+}
+
+.toast-enter-active {
+  transition: transform 0.34s var(--ease-spring), opacity 0.2s;
+}
+.toast-leave-active {
+  transition: transform 0.2s var(--ease-ui), opacity 0.2s;
+}
+.toast-enter-from,
+.toast-leave-to {
+  transform: translate(-50%, 16px);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

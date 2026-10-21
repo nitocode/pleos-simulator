@@ -1,0 +1,96 @@
+/*
+ * Pleos Connect : valeurs des jetons --ui-* (voir src/styles/main.css).
+ * Mode clair d'après les visuels officiels (fond gris perle, cartes blanches),
+ * mode sombre d'après les photos de la Grandeur (fond noir, cartes graphite).
+ */
+.pleos {
+  --ui-bg: #e4e7ec;
+  --ui-drive: #ffffff;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #eef0f3;
+  --ui-surface-3: #e0e3e8;
+  --ui-line: #e2e5ea;
+  --ui-ink: #121418;
+  --ui-ink-2: #5c636e;
+  --ui-ink-3: #9aa0aa;
+  --ui-accent: #2f7bf6;
+  --ui-accent-soft: #e2edff;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #16b157;
+  --ui-warn: #e58a00;
+  --ui-crit: #e8383d;
+  --ui-cool: #2f73ef;
+  --ui-heat: #ec4436;
+  --ui-heat-soft: #fde6e1;
+  --ui-cool-soft: #e0eefd;
+  --ui-scrim: rgb(20 26 36 / 0.22);
+  --ui-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 4px 14px rgb(15 23 42 / 0.06);
+  --ui-shadow-pop: 0 18px 50px rgb(15 23 42 / 0.18), 0 2px 6px rgb(15 23 42 / 0.08);
+
+  --map-land: #eef0f2;
+  --map-block: #e2e5e9;
+  --map-park: #d4ecd9;
+  --map-water: #9fcdf0;
+  --map-road: #ffffff;
+  --map-road-edge: #d5dbe2;
+  --map-major: #fde8a8;
+  --map-route: #22a94b;
+  --map-route-edge: #ffffff;
+
+  --gleo-a: #3d6bff;
+  --gleo-b: #8a5cff;
+  --gleo-c: #e36bff;
+
+  font-family: var(--font-sans);
+  color: var(--ui-ink);
+  transition: background-color 0.5s var(--ease-ui), color 0.5s var(--ease-ui);
+}
+
+.pleos.night {
+  --ui-bg: #000000;
+  --ui-drive: #000000;
+  --ui-surface: #1b1c20;
+  --ui-surface-2: #26282d;
+  --ui-surface-3: #33363c;
+  --ui-line: #2b2d33;
+  --ui-ink: #f3f4f6;
+  --ui-ink-2: #a3a8b1;
+  --ui-ink-3: #686e78;
+  --ui-accent: #3d86ff;
+  --ui-accent-soft: #19304f;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #34d27a;
+  --ui-warn: #ffb547;
+  --ui-crit: #ff5a5f;
+  --ui-cool: #4d94ff;
+  --ui-heat: #ff6150;
+  --ui-heat-soft: #4a2219;
+  --ui-cool-soft: #16304e;
+  --ui-scrim: rgb(0 0 0 / 0.5);
+  --ui-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  --ui-shadow-pop: 0 18px 50px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.04);
+
+  --map-land: #20242b;
+  --map-block: #282d35;
+  --map-park: #1e3027;
+  --map-water: #1c3a57;
+  --map-road: #3a414c;
+  --map-road-edge: #191c22;
+  --map-major: #4d5563;
+  --map-route: #36c45e;
+  --map-route-edge: #0e1a12;
+}
+
+/* Écran plat : toujours sombre par défaut, comme sur le véhicule. */
+.pleos-flat {
+  --flat-bg: #000;
+  --flat-ink: #fff;
+  --flat-dim: #9a9ea6;
+  --flat-line: #2a2a2a;
+}
+.pleos-flat.light {
+  --flat-bg: #f1f3f6;
+  --flat-ink: #111;
+  --flat-dim: #5b6068;
+  --flat-line: #d4d8de;
+}
