@@ -10,6 +10,7 @@ import SettingItemRow from './SettingItemRow.vue'
 import ChargeSettings from './settings/ChargeSettings.vue'
 import AppsSettings from './settings/AppsSettings.vue'
 import VehicleData from './settings/VehicleData.vue'
+import ComfortModes from './settings/ComfortModes.vue'
 
 /** Paramètres du véhicule : panneau système au-dessus de la zone d'apps (navigation à gauche, contenu à droite). */
 const pleos = usePleosStore()
@@ -71,6 +72,7 @@ function toggleTile(key: Parameters<typeof binding.toggle>[0]) {
           <ChargeSettings v-if="category.special === 'charge'" />
           <AppsSettings v-else-if="category.special === 'apps'" />
           <VehicleData v-else-if="category.special === 'data'" />
+          <ComfortModes v-else-if="category.special === 'comfort'" />
           <template v-else>
             <h2 class="mb-4 text-[21px] font-bold">{{ category.label }}</h2>
             <div v-if="category.tiles" class="mb-4 grid grid-cols-[repeat(auto-fill,minmax(176px,1fr))] gap-2.5">

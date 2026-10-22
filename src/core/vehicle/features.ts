@@ -93,6 +93,7 @@ export const DEFAULT_FEATURES = {
   washMode: false,
   utilityMode: false,
   petMode: false,
+  petTemp: 21,
   valetMode: false,
   parkInNeutral: false,
   serviceReminder: true,

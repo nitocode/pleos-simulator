@@ -46,6 +46,28 @@ watch(
   },
 )
 
+// Manuel Connect-S : le Standmodus s'arrête au changement de rapport, le mode lavage au-delà de 20 km/h.
+watch(
+  () => vehicle.gear,
+  () => {
+    if (vehicle.features.utilityMode) {
+      vehicle.setFeature('utilityMode', false)
+      pleos.notify('Standmodus désactivé', 'bolt')
+    }
+  },
+)
+watch(
+  () => vehicle.speed,
+  (s) => {
+    if (s > 20 && vehicle.features.washMode) {
+      vehicle.setFeature('washMode', false)
+      vehicle.body.mirrorsFolded = false
+      vehicle.climate.recirc = false
+      pleos.notify('Mode lavage désactivé : vitesse supérieure à 20 km/h', 'warning')
+    }
+  },
+)
+
 function toggleDayNight() {
   pleos.prefs.theme = 'Automatique'
   pleos.prefs.flatTheme = 'Automatique'

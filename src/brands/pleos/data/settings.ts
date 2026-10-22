@@ -30,7 +30,7 @@ export interface SettingsCategory {
   icon: IconName
   tiles?: QuickTile[]
   items?: SettingItem[]
-  special?: 'charge' | 'apps' | 'data'
+  special?: 'charge' | 'apps' | 'data' | 'comfort'
 }
 
 const tile = (key: SettingKey, label: string, on: string, off: string, icon: IconName): QuickTile => ({ key, label, on, off, icon })
@@ -315,6 +315,7 @@ export const SETTINGS: SettingsCategory[] = [
     id: 'comfort',
     label: 'Confort',
     icon: 'sofa',
+    special: 'comfort',
     items: [
       sw('f:washMode', 'Mode lavage du véhicule', 'Prépare le véhicule au lavage automatique'),
       sw('f:utilityMode', 'Mode utilitaire', 'Garde climatisation et média actifs à l’arrêt'),
