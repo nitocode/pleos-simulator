@@ -3,14 +3,14 @@ import { computed, reactive, ref } from 'vue'
 import { DEFAULT_FEATURES, type FeatureKey, type Features } from './features'
 import { RADIO, TRACKS } from './data'
 import {
-  BATTERY_KWH,
-  KM_PER_PERCENT,
+  IONIQ3_SPEC,
   SIM_SPEEDUP,
   chargeStatus,
   estimateRange,
   nextBatteryTemp,
   smoothConsumption,
   speedLimitFor,
+  type VehicleSpec,
 } from './simulation'
 import type {
   BodyState,
@@ -64,6 +64,8 @@ export const useVehicleStore = defineStore('vehicle', () => {
   const hazard = ref(false)
   const cruise = ref(false)
   const cruiseSpeed = ref(0)
+  /** Caractéristiques du modèle simulé (batterie, autonomie, courbe de charge) : fixées par l'interface affichée. */
+  const spec = ref<VehicleSpec>(IONIQ3_SPEC)
   const batteryTemp = ref(24)
   const chargerKw = ref(150)
   /** Séance de charge en cours : énergie reçue, durée et relevé (état de charge, puissance) pour la courbe. */
@@ -131,12 +133,12 @@ export const useVehicleStore = defineStore('vehicle', () => {
 
   // ---------- Lectures dérivées ----------
   const moving = computed(() => speed.value > 0)
-  const range = computed(() => estimateRange(battery.value, features.driveMode, climate.on && climate.ac))
+  const range = computed(() => estimateRange(battery.value, features.driveMode, climate.on && climate.ac, spec.value))
   const speedLimit = computed(() => speedLimitFor(speed.value, nav))
   const overLimit = computed(
     () => features.isla && speed.value > speedLimit.value + (parseInt(String(features.speedTolerance)) || 0),
   )
-  const chargeCtx = () => ({ batteryTemp: batteryTemp.value, chargerKw: chargerKw.value })
+  const chargeCtx = () => ({ batteryTemp: batteryTemp.value, chargerKw: chargerKw.value, spec: spec.value })
   const chargeInfo = computed(() => chargeStatus(battery.value, plug.value, charge, chargeCtx()))
   const lkaActive = computed(() => features.lka && speed.value >= 60)
   const currentTrack = computed(() => TRACKS[media.track]!)
@@ -192,6 +194,10 @@ export const useVehicleStore = defineStore('vehicle', () => {
     }
     emit({ type: 'power', on })
     return true
+  }
+
+  function setSpec(s: VehicleSpec) {
+    spec.value = s
   }
 
   function setChargerKw(kw: number) {
@@ -374,7 +380,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
       trip.value += km
       odometer.value += km
       tripMinutes.value += seconds / 60
-      battery.value = Math.max(0, battery.value - km / KM_PER_PERCENT)
+      battery.value = Math.max(0, battery.value - km / spec.value.kmPerPercent)
       consumption.value = smoothConsumption(consumption.value, speed.value, features.driveMode)
       if (nav.destination) {
         nav.remainingKm -= km
@@ -394,7 +400,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
       const cs = chargeStatus(battery.value, plug.value, charge, chargeCtx())
       kwNow = cs.kw
       if (cs.charging) {
-        battery.value = Math.min(cs.limit, battery.value + ((cs.kw * dt) / 3600 / BATTERY_KWH) * 100)
+        battery.value = Math.min(cs.limit, battery.value + ((cs.kw * dt) / 3600 / spec.value.batteryKwh) * 100)
         session.kwh += (cs.kw * dt) / 3600
         session.seconds += dt
       }
@@ -421,10 +427,10 @@ export const useVehicleStore = defineStore('vehicle', () => {
   }
 
   return {
-    gear, ready, speed, power, battery, batteryTemp, chargerKw, session, odometer, trip, tripMinutes, consumption, outsideTemp, plug, turn, hazard, cruise, cruiseSpeed,
+    gear, ready, spec, speed, power, battery, batteryTemp, chargerKw, session, odometer, trip, tripMinutes, consumption, outsideTemp, plug, turn, hazard, cruise, cruiseSpeed,
     features, climate, media, nav, call, body, charge,
     moving, range, speedLimit, overLimit, chargeInfo, lkaActive, currentTrack, currentStation,
-    onEvent, setGear, maxSpeed, setSpeed, setBattery, setChargerKw, setReady, toggleTurn, toggleHazard, toggleCruise, paddle, setPlug,
+    onEvent, setGear, maxSpeed, setSpeed, setBattery, setChargerKw, setReady, setSpec, toggleTurn, toggleHazard, toggleCruise, paddle, setPlug,
     setTemp, nudgeTemp, setFan, toggleClimate, cycleSeat, setSeat, cycleAirflow,
     togglePlay, step, playStation, playTrack, setVolume, toggleMute, toggleFavoriteStation,
     navigateTo, cancelRoute, dial, ringIncoming, answer, hangUp, toggleBody, setFeature, tick,

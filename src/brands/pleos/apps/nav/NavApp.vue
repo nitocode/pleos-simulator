@@ -7,7 +7,7 @@ import { etaMinutes, guidance } from '@/core/vehicle/simulation'
 import { useVehicleStore } from '@/core/vehicle/store'
 import type { Place } from '@/core/vehicle/types'
 import { usePleosStore } from '../../store/pleos'
-import MapCanvas from './MapCanvas.vue'
+import MapCanvas from '@/core/ui/MapCanvas.vue'
 
 /** App Navigation : carte de base (non fermable), recherche, guidage pas à pas et carte d'arrivée. */
 const vehicle = useVehicleStore()
@@ -26,7 +26,7 @@ const eta = computed(() => {
   const m = etaMinutes(vehicle.nav)
   return { minutes: m, time: clock(new Date(Date.now() + m * 60000), pleos.prefs.clock === '24 heures') }
 })
-const arrival = computed(() => Math.round(vehicle.battery - vehicle.nav.remainingKm / 4.96))
+const arrival = computed(() => Math.round(vehicle.battery - vehicle.nav.remainingKm / vehicle.spec.kmPerPercent))
 const results = computed(() => {
   const n = normalize(query.value)
   return PLACES.filter((p) => !n || normalize(`${p.name} ${p.address}`).includes(n))

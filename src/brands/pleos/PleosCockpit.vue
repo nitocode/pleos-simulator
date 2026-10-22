@@ -17,6 +17,7 @@ import './theme.css'
 const vehicle = useVehicleStore()
 const pleos = usePleosStore()
 const bench = useBenchStore()
+vehicle.setSpec(brand.vehicle)
 useSimulationClock()
 
 // Les événements du véhicule s'affichent en toast, comme sur l'écran réel.

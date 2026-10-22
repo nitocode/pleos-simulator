@@ -3,13 +3,36 @@ import type { ChargeSettings, ChargeStatus, DriveMode, NavState, PlugType } from
 
 /** Le temps simulé avance 20 fois plus vite que le temps réel (trajets et recharges courts). */
 export const SIM_SPEEDUP = 20
-/** Batterie utile et autonomie de référence de l'Ioniq 3 grande autonomie (≈ 496 km WLTP). */
-export const BATTERY_KWH = 61
-export const KM_PER_PERCENT = 4.96
+/**
+ * Caractéristiques du véhicule simulé : chaque interface fournit celles de son modèle
+ * (capacité utile, autonomie par %, courbe de charge rapide, puissance CA maximale).
+ */
+export interface VehicleSpec {
+  batteryKwh: number
+  kmPerPercent: number
+  /** Puissance acceptée en charge rapide (kW) selon l'état de charge (%), batterie chaude. */
+  dcCurve: readonly [soc: number, kw: number][]
+  acKw: number
+}
 
-export function estimateRange(battery: number, mode: DriveMode, climateOn: boolean): number {
+/**
+ * Ioniq 3 61 kWh : autonomie de référence ≈ 496 km WLTP ; pic de 110 kW en CC (fiche technique Hyundai),
+ * courbe calée sur environ 30 min pour 10→80 %.
+ */
+export const IONIQ3_SPEC: VehicleSpec = {
+  batteryKwh: 61,
+  kmPerPercent: 4.96,
+  dcCurve: [
+    [0, 70], [5, 95], [10, 110], [30, 108], [40, 98], [50, 88], [60, 78], [70, 66], [80, 50], [85, 36], [90, 25], [95, 14], [100, 5],
+  ],
+  acKw: 11,
+}
+
+export const BATTERY_KWH = IONIQ3_SPEC.batteryKwh
+
+export function estimateRange(battery: number, mode: DriveMode, climateOn: boolean, spec: VehicleSpec = IONIQ3_SPEC): number {
   const modeFactor = mode === 'Eco' ? 1.05 : mode === 'Sport' ? 0.93 : 1
-  return Math.round(battery * KM_PER_PERCENT * modeFactor * (climateOn ? 0.97 : 1))
+  return Math.round(battery * spec.kmPerPercent * modeFactor * (climateOn ? 0.97 : 1))
 }
 
 /** Limitation affichée : liée à la route suivie, sinon déduite de la vitesse. */
@@ -25,16 +48,15 @@ export function speedLimitFor(speed: number, nav: NavState): number {
  * Puissance maximale en charge rapide (CC) selon l'état de charge, batterie à bonne température (kW).
  * Pic de 110 kW (fiche technique Hyundai), calée pour que 10→80 % dure environ 30 min.
  */
-export const DC_CURVE: readonly [soc: number, kw: number][] = [
-  [0, 70], [5, 95], [10, 110], [30, 108], [40, 98], [50, 88], [60, 78], [70, 66], [80, 50], [85, 36], [90, 25], [95, 14], [100, 5],
-]
-export const AC_KW = { Maximum: 11, Réduit: 7.4, Minimum: 3.7 } as const
+export const DC_CURVE = IONIQ3_SPEC.dcCurve
+const AC_RATIO = { Maximum: 1, Réduit: 0.673, Minimum: 0.336 } as const
 export const DC_CHARGER_KW = [50, 150, 350] as const
 
 /** Contexte de la charge : température de la batterie et puissance que la borne peut fournir. */
 export interface ChargeContext {
   batteryTemp: number
   chargerKw: number
+  spec?: VehicleSpec
 }
 export const WARM_BATTERY: ChargeContext = { batteryTemp: 25, chargerKw: 350 }
 
@@ -59,10 +81,10 @@ export function tempFactor(t: number): number {
 export function chargeKw(soc: number, plug: PlugType, s: ChargeSettings, ctx: ChargeContext = WARM_BATTERY): number {
   if (plug === 'none') return 0
   if (plug === 'ac') {
-    const base: number = AC_KW[s.acCurrent]
+    const base = Math.round((ctx.spec ?? IONIQ3_SPEC).acKw * AC_RATIO[s.acCurrent] * 10) / 10
     return soc > 90 ? base * (1 - (0.5 * (soc - 90)) / 10) : base
   }
-  return Math.min(interpolate(DC_CURVE, soc) * tempFactor(ctx.batteryTemp), ctx.chargerKw)
+  return Math.min(interpolate((ctx.spec ?? IONIQ3_SPEC).dcCurve, soc) * tempFactor(ctx.batteryTemp), ctx.chargerKw)
 }
 
 /** Durée (min) pour passer de `from` à `to` %, en intégrant la courbe par pas de 0,5 %. */
@@ -70,7 +92,7 @@ export function chargeMinutes(from: number, to: number, plug: PlugType, s: Charg
   let minutes = 0
   for (let soc = from; soc < to; soc += 0.5) {
     const step = Math.min(0.5, to - soc)
-    minutes += ((step / 100) * BATTERY_KWH) / chargeKw(soc + step / 2, plug, s, ctx) * 60
+    minutes += ((step / 100) * (ctx.spec ?? IONIQ3_SPEC).batteryKwh) / chargeKw(soc + step / 2, plug, s, ctx) * 60
   }
   return minutes
 }

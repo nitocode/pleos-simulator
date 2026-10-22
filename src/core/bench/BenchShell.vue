@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import type { BrandDefinition } from '../brands'
 import { useBenchStore, type BenchView } from './useBench'
 import SimulationPanel from './SimulationPanel.vue'
+import Icon from '../ui/Icon.vue'
 
 /**
  * Banc d'essai commun : en-tête (marque, vue, taille), emplacements des écrans et commandes,
@@ -12,11 +13,13 @@ import SimulationPanel from './SimulationPanel.vue'
 const props = defineProps<{ brand: BrandDefinition; brands: BrandDefinition[] }>()
 const bench = useBenchStore()
 const router = useRouter()
-const VIEWS: [BenchView, string][] = [
-  ['cockpit', 'Cockpit'],
-  ['central', 'Écran central'],
-  ['driver', 'Écran conducteur'],
-]
+const VIEWS = computed<[BenchView, string][]>(() =>
+  props.brand.driverDisplay
+    ? [['cockpit', 'Cockpit'], ['central', 'Écran central'], ['driver', 'Écran conducteur']]
+    : [['cockpit', 'Cockpit'], ['central', 'Écran central']],
+)
+// Une vue qui n'existe pas pour ce modèle (ex. écran conducteur) retombe sur le cockpit.
+if (!props.brand.driverDisplay && bench.view === 'driver') bench.view = 'cockpit'
 const size = computed(() => props.brand.sizes.find((s) => s.id === bench.size) ?? props.brand.sizes.find((s) => s.id === props.brand.defaultSize)!)
 </script>
 
@@ -24,6 +27,7 @@ const size = computed(() => props.brand.sizes.find((s) => s.id === bench.size) ?
   <div class="mx-auto flex max-w-[1560px] flex-col gap-5 px-[max(16px,env(safe-area-inset-left))] py-5">
     <header class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
       <div class="min-w-0">
+        <RouterLink to="/" class="mb-1 inline-flex items-center gap-1.5 text-[12px] font-semibold text-bench-dim hover:text-bench-ink"><Icon name="arrow-left" size="14" />Accueil</RouterLink>
         <h1 class="text-[21px] font-bold text-balance text-white">{{ brand.system }} · {{ brand.maker }} {{ brand.model }}</h1>
         <p class="mt-0.5 text-[12px] font-semibold tracking-[0.08em] text-bench-dim uppercase">{{ brand.summary }}</p>
       </div>
@@ -44,7 +48,7 @@ const size = computed(() => props.brand.sizes.find((s) => s.id === bench.size) ?
     </header>
 
     <section class="flex flex-col items-center gap-5">
-      <div v-show="bench.view !== 'central'" class="flex w-full flex-col items-center gap-2">
+      <div v-if="brand.driverDisplay" v-show="bench.view !== 'central'" class="flex w-full flex-col items-center gap-2">
         <p class="text-[11px] font-semibold tracking-[0.08em] text-bench-dim uppercase">Écran conducteur</p>
         <slot name="driver" :view="bench.view" />
       </div>

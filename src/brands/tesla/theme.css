@@ -1,0 +1,77 @@
+/*
+ * Interface Tesla : valeurs des jetons --ui-* (voir src/styles/main.css).
+ * Sombre par défaut, comme l'écran du véhicule ; la variante claire suit le réglage Affichage.
+ */
+.tesla {
+  --ui-bg: #e9eaed;
+  --ui-drive: #f4f4f5;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f0f1f3;
+  --ui-surface-3: #e2e4e8;
+  --ui-line: #e3e5e9;
+  --ui-ink: #171a20;
+  --ui-ink-2: #5c5e62;
+  --ui-ink-3: #9a9da3;
+  --ui-accent: #3e6ae1;
+  --ui-accent-soft: #e4ebfc;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #1f9d55;
+  --ui-warn: #e58a00;
+  --ui-crit: #e31937;
+  --ui-cool: #3e6ae1;
+  --ui-heat: #e8472b;
+  --ui-heat-soft: #fde6e1;
+  --ui-cool-soft: #e4ebfc;
+  --ui-scrim: rgb(20 22 28 / 0.25);
+  --ui-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 6px 18px rgb(15 23 42 / 0.08);
+  --ui-shadow-pop: 0 18px 50px rgb(15 23 42 / 0.2), 0 2px 6px rgb(15 23 42 / 0.1);
+
+  --map-land: #eceef1;
+  --map-block: #e0e3e8;
+  --map-park: #d7ead9;
+  --map-water: #a9d1ee;
+  --map-road: #ffffff;
+  --map-road-edge: #d3d8df;
+  --map-major: #f6e3a8;
+  --map-route: #3e6ae1;
+  --map-route-edge: #ffffff;
+
+  font-family: var(--font-sans);
+  color: var(--ui-ink);
+  transition: background-color 0.5s var(--ease-ui), color 0.5s var(--ease-ui);
+}
+
+.tesla.night {
+  --ui-bg: #0b0c0e;
+  --ui-drive: #101114;
+  --ui-surface: #1b1d21;
+  --ui-surface-2: #25272c;
+  --ui-surface-3: #32353b;
+  --ui-line: #2a2d33;
+  --ui-ink: #f4f5f6;
+  --ui-ink-2: #aeb2b9;
+  --ui-ink-3: #70747c;
+  --ui-accent: #4f7bf0;
+  --ui-accent-soft: #1d2c52;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #3ed07e;
+  --ui-warn: #ffb547;
+  --ui-crit: #ff4d63;
+  --ui-cool: #5b8cff;
+  --ui-heat: #ff6a4d;
+  --ui-heat-soft: #4a2219;
+  --ui-cool-soft: #1d2c52;
+  --ui-scrim: rgb(0 0 0 / 0.5);
+  --ui-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  --ui-shadow-pop: 0 18px 50px rgb(0 0 0 / 0.65), 0 0 0 1px rgb(255 255 255 / 0.05);
+
+  --map-land: #1c2026;
+  --map-block: #232830;
+  --map-park: #1c2b24;
+  --map-water: #18344d;
+  --map-road: #353b45;
+  --map-road-edge: #15181d;
+  --map-major: #48505e;
+  --map-route: #5b8cff;
+  --map-route-edge: #0c1018;
+}

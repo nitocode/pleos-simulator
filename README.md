@@ -1,10 +1,20 @@
 # Simulateur d'interfaces auto
 
-Banc d'essai web **non officiel** pour tester des interfaces multimédia de voitures dans un navigateur. Première marque : **Pleos Connect** de la Hyundai Ioniq 3.
+Banc d'essai web **non officiel** pour tester des interfaces multimédia de voitures dans un navigateur. Une page d'accueil permet de choisir la marque, puis le modèle : **Hyundai Ioniq 3** (Pleos Connect) et **Tesla Model 3**.
 
 Site : https://nitocode.github.io/pleos-simulator/
 
 > Projet sans lien avec Hyundai ni avec les autres constructeurs. Graphismes, données et textes d'aide sont des reconstitutions de démonstration.
+
+## Tesla Model 3
+
+Reconstitution d'après le manuel du conducteur du Model 3 (2024+) :
+
+- **Écran tactile** : barre d'état, zone d'état du véhicule (rapport, vitesse, coffres, trappe de recharge), carte et navigation, barre inférieure (climatisation, Mes applis, lanceur d'applications, volume).
+- **Contrôles** avec recherche : Rapide, Dynamique, Recharge, Éclairage, Affichage, Sécurité, Navigation, Entretien, Logiciel.
+- **Climatisation** : Auto, sièges chauffants à 3 niveaux, volant, dégivreurs (pare-brise à 3 états), ventilation, air recyclé, Séparer, flux d'air.
+- **Apps** : Multimédia, Téléphone, Recharge (courbe de charge), Énergie, Caméra de recul, Météo.
+- **Commandes du volant** : bouton de défilement gauche (volume, morceau, appels), redémarrage de l'écran par appui long.
 
 ## Ce que contient Pleos
 
@@ -15,7 +25,11 @@ Site : https://nitocode.github.io/pleos-simulator/
 - **Panneaux** : climatisation, Paramètres du véhicule (20 catégories du manuel), notifications, profil, volume, recherche.
 - **Apps** : Navigation, Bluetooth Audio, Radio, Appel/message, Gleo AI, Vue de la caméra, Rapport énergie, App Market, Manuel, projection, Bluelink.
 - **Écran plat conducteur** avec widgets configurables.
-- **Commandes physiques**, plus un **panneau de simulation** : rapport, vitesse, clignotants, régulateur, recharge, appel entrant, jour/nuit.
+- **Commandes physiques**, plus un **panneau de simulation** : contact, rapport, vitesse, batterie, clignotants, régulateur, borne de recharge, appel entrant, jour/nuit.
+
+## Simulation de la charge
+
+Chaque modèle déclare sa batterie, son autonomie par % et sa **courbe de charge rapide** (`VehicleSpec`). La puissance suit la courbe selon l'état de charge, la température de la batterie (froide = plus lent) et la puissance de la borne (50, 150 ou 350 kW) ; la charge CA suit le courant choisi. Repères : Ioniq 3 61 kWh, pic 110 kW, 10→80 % en ≈ 30 min (fiche Hyundai) ; Model 3 ≈ 75 kWh, pic 250 kW, 10→80 % en ≈ 27 min (relevés publics, estimation).
 
 ## Stack
 
@@ -46,12 +60,14 @@ src/
 ├─ core/                    # indépendant de toute marque
 │  ├─ vehicle/              # véhicule simulé : types, store Pinia, simulation, données démo
 │  ├─ bench/                # BenchShell (en-tête, vues, tailles) + SimulationPanel
+│  │                        # (aussi : MapCanvas, la carte partagée, dans ui/)
 │  ├─ ui/                   # Icon.vue + icons.ts (SVG 24×24), ScaledScreen.vue
 │  ├─ composables/          # horloge, appui long, tick de simulation
 │  ├─ brands.ts             # contrat BrandDefinition
 │  └─ format.ts
 ├─ brands/
 │  ├─ index.ts              # registre des marques
+│  ├─ tesla/                # Model 3 : TeslaCockpit, store, components/, apps/, theme.css
 │  └─ pleos/
 │     ├─ index.ts           # BrandDefinition (tailles d'écran, cockpit chargé à la demande)
 │     ├─ theme.css          # valeurs des jetons --ui-* jour / nuit
@@ -63,6 +79,7 @@ src/
 │     ├─ apps/              # une app = un composant, déclaré dans registry.ts
 │     └─ data/              # paramètres, manuel, recherche
 ├─ styles/main.css          # Tailwind, jetons sémantiques, transitions partagées
+├─ HomePage.vue             # accueil : choix de la marque puis du modèle
 ├─ BrandHost.vue            # route #/:brand → cockpit de la marque
 └─ router.ts
 ```
@@ -95,14 +112,20 @@ Trois principes :
    ```ts
    import type { BrandDefinition } from '@/core/brands'
    export default {
-     id: 'tesla',
-     maker: 'Tesla',
-     system: 'Tesla UI',
-     model: 'Model 3',
+     id: 'exemple',
+     maker: 'Marque',
+     system: 'Interface',
+     model: 'Modèle',
      summary: '…',
-     sizes: [{ id: '15.4', label: '15,4″', width: 1920, height: 1200 }],
+     tagline: 'Accroche de la page d’accueil.',
+     year: '2026',
+     screenLabel: '15,4″',
+     accent: '#3e6ae1',
+     vehicle: { batteryKwh: 70, kmPerPercent: 5, acKw: 11, dcCurve: [[0, 100], [10, 150], [80, 60], [100, 5]] },
+     driverDisplay: false,
+     sizes: [{ id: '15.4', label: '15,4″', width: 1280, height: 800 }],
      defaultSize: '15.4',
-     cockpit: () => import('./TeslaCockpit.vue'),
+     cockpit: () => import('./ExempleCockpit.vue'),
    } satisfies BrandDefinition
    ```
 
@@ -126,3 +149,5 @@ Dans les réglages du dépôt, choisir **Settings → Pages → Source : GitHub 
 - Manuel en ligne Pleos Connect (Ioniq 3, français) : ownersmanual.hyundai.com
 - Guide de design Pleos Playground : document.pleos.ai (zones d'écran, politique de fenêtres, zone de contrôle, bibliothèque d'apps)
 - Visuels de presse Hyundai Motor Group
+- Manuel du conducteur du Model 3 (français, 2024+) : tesla.com/ownersmanual/model3
+- Fiches techniques Hyundai et relevés publics (ev-database) pour la batterie et la courbe de charge

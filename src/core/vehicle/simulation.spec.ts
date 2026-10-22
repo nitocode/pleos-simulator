@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { ChargeSettings } from './types'
-import { chargeKw, chargeMinutes, chargeStatus, nextBatteryTemp, tempFactor } from './simulation'
+import { MODEL3_SPEC } from '@/brands/tesla'
+import { BRANDS } from '@/brands'
+import { IONIQ3_SPEC, chargeKw, chargeMinutes, chargeStatus, nextBatteryTemp, tempFactor } from './simulation'
 
 const DEFAULT_CHARGE: ChargeSettings = {
   acLimit: 100, dcLimit: 80, acCurrent: 'Maximum', scheduled: false, departure: '07:30', cableLock: 'Pendant la charge',
@@ -48,5 +50,24 @@ describe('courbe de charge', () => {
   it('annonce la charge terminée à la limite', () => {
     expect(chargeStatus(80, 'dc', DEFAULT_CHARGE, warm).charging).toBe(false)
     expect(chargeStatus(40, 'dc', DEFAULT_CHARGE, warm).minutesLeft).toBeGreaterThan(0)
+  })
+})
+
+describe('modèles', () => {
+  it('Model 3 : 10→80 % en 25 à 28 min sur Superchargeur, comme les relevés publics', () => {
+    const min = chargeMinutes(10, 80, 'dc', DEFAULT_CHARGE, { ...warm, spec: MODEL3_SPEC })
+    expect(min).toBeGreaterThan(24)
+    expect(min).toBeLessThan(29)
+    expect(chargeKw(10, 'dc', DEFAULT_CHARGE, { ...warm, spec: MODEL3_SPEC })).toBeGreaterThan(chargeKw(10, 'dc', DEFAULT_CHARGE, { ...warm, spec: IONIQ3_SPEC }))
+  })
+
+  it('chaque interface déclare une courbe de charge complète de 0 à 100 %', () => {
+    for (const b of BRANDS) {
+      const c = b.vehicle.dcCurve
+      expect(c[0]![0]).toBe(0)
+      expect(c[c.length - 1]![0]).toBe(100)
+      expect(b.vehicle.batteryKwh).toBeGreaterThan(30)
+    }
+    expect(new Set(BRANDS.map((b) => b.id)).size).toBe(BRANDS.length)
   })
 })
