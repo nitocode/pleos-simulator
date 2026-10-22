@@ -13,6 +13,17 @@ const pet = computed(() => vehicle.features.petMode && vehicle.gear === 'P' && !
 </script>
 
 <template>
+  <!-- véhicule éteint : écran noir ; l'état de la charge reste visible, le bouton redémarre -->
+  <Transition name="fade">
+    <div v-if="!vehicle.ready" class="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-4 bg-black text-white">
+      <span class="text-[15px] font-semibold tracking-[0.12em] uppercase opacity-60">Véhicule éteint</span>
+      <b class="tnum text-[64px] leading-none font-extralight">{{ Math.round(vehicle.battery) }}<small class="text-[22px] opacity-60"> %</small></b>
+      <span v-if="vehicle.chargeInfo.charging" class="flex items-center gap-2 text-ok"><Icon name="bolt" size="18" />{{ vehicle.chargeInfo.label }}</span>
+      <span v-else-if="vehicle.plug !== 'none'" class="text-[15px] opacity-70">{{ vehicle.chargeInfo.label }}</span>
+      <button type="button" class="press mt-3 flex h-12 items-center gap-2 rounded-full bg-white px-6 text-[15px] font-semibold text-black" @click="vehicle.setReady(true)"><Icon name="power" size="20" />Démarrer</button>
+    </div>
+  </Transition>
+
   <Transition name="drop">
     <div v-if="vehicle.call?.status === 'incoming'" class="absolute top-[64px] left-[calc(var(--drive-w)+24px)] z-40 flex w-[420px] items-center gap-3 rounded-[22px] border border-line bg-surface p-3 shadow-pop">
       <span class="grid size-12 place-items-center rounded-full bg-surface-3 text-[18px] font-bold">{{ vehicle.call.name[0] }}</span>

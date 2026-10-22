@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import Icon from '../ui/Icon.vue'
 import { useVehicleStore } from '../vehicle/store'
+import { DC_CHARGER_KW } from '../vehicle/simulation'
 import type { Gear, PlugType } from '../vehicle/types'
 
 /** Commandes de simulation communes à toutes les interfaces : rapport, vitesse, clignotants, recharge, appel. */
@@ -20,6 +21,13 @@ const on = (active: boolean) => (active ? 'border-[#3b74b5] bg-[#24466f] text-wh
 <template>
   <section class="grid grid-cols-[repeat(auto-fit,minmax(230px,1fr))] gap-x-6 gap-y-4 rounded-[18px] border border-bench-line bg-bench-panel p-4">
     <h2 class="col-span-full text-[12px] font-bold tracking-[0.1em] text-bench-dim uppercase">Simulation du véhicule</h2>
+    <div class="flex flex-col gap-2">
+      <span class="text-[12px] font-semibold text-bench-dim">Contact</span>
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button type="button" :class="[btn, on(vehicle.ready)]" @click="vehicle.setReady(!vehicle.ready)"><Icon name="power" size="16" />{{ vehicle.ready ? 'Éteindre' : 'Démarrer' }}</button>
+        <span class="text-[11.5px] text-bench-dim">{{ vehicle.ready ? 'READY · extinction à l’arrêt en P' : 'Éteint · la charge continue' }}</span>
+      </div>
+    </div>
     <div class="flex flex-col gap-2">
       <span class="text-[12px] font-semibold text-bench-dim">Rapport</span>
       <div class="flex gap-1.5">
@@ -50,6 +58,10 @@ const on = (active: boolean) => (active ? 'border-[#3b74b5] bg-[#24466f] text-wh
       <span class="text-[12px] font-semibold text-bench-dim">Borne de recharge</span>
       <div class="flex flex-wrap gap-1.5">
         <button v-for="[p, label] in PLUGS" :key="p" type="button" :class="[btn, on(vehicle.plug === p)]" :disabled="p !== 'none' && vehicle.gear !== 'P'" @click="vehicle.setPlug(p)">{{ label }}</button>
+      </div>
+      <div v-if="vehicle.plug === 'dc'" class="flex flex-wrap items-center gap-1.5">
+        <span class="text-[11.5px] text-bench-dim">Puissance de la borne</span>
+        <button v-for="kw in DC_CHARGER_KW" :key="kw" type="button" :class="[btn, on(vehicle.chargerKw === kw), 'px-3']" @click="vehicle.setChargerKw(kw)">{{ kw }} kW</button>
       </div>
     </div>
     <div class="flex flex-col gap-2">

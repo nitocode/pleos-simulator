@@ -24,6 +24,35 @@ describe('véhicule simulé', () => {
     expect(v.battery).toBe(0)
   })
 
+  it('n’éteint le véhicule qu’à l’arrêt en P, et refuse de passer un rapport éteint', () => {
+    const v = useVehicleStore()
+    v.setGear('D')
+    v.setSpeed(30)
+    expect(v.setReady(false)).toBe(false)
+    expect(v.ready).toBe(true)
+    v.setSpeed(0)
+    v.setGear('P')
+    v.setFeature('utilityMode', true)
+    expect(v.setReady(false)).toBe(true)
+    expect(v.features.utilityMode).toBe(false)
+    expect(v.setGear('D')).toBe(false)
+    v.setReady(true)
+    expect(v.setGear('D')).toBe(true)
+  })
+
+  it('charge selon la courbe : plus lent à haut état de charge, relevé de séance', () => {
+    const v = useVehicleStore()
+    v.chargerKw = 350
+    v.battery = 20
+    v.setPlug('dc')
+    const kwLow = v.chargeInfo.kw
+    for (let i = 0; i < 20; i++) v.tick(1)
+    expect(v.session.kwh).toBeGreaterThan(5)
+    expect(v.session.points.length).toBeGreaterThan(0)
+    v.battery = 75
+    expect(v.chargeInfo.kw).toBeLessThan(kwLow)
+  })
+
   it('limite la vitesse selon le rapport', () => {
     const v = useVehicleStore()
     v.setSpeed(50)

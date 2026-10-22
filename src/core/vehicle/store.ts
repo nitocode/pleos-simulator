@@ -8,6 +8,7 @@ import {
   SIM_SPEEDUP,
   chargeStatus,
   estimateRange,
+  nextBatteryTemp,
   smoothConsumption,
   speedLimitFor,
 } from './simulation'
@@ -31,7 +32,9 @@ export type VehicleEvent =
   | { type: 'arrived'; place: string }
   | { type: 'charge-complete' }
   | { type: 'auto-locked' }
-  | { type: 'gear-refused'; reason: 'moving' | 'plugged'; gear: Gear }
+  | { type: 'gear-refused'; reason: 'moving' | 'plugged' | 'off'; gear: Gear }
+  | { type: 'power'; on: boolean }
+  | { type: 'power-refused' }
 
 type Listener = (e: VehicleEvent) => void
 
@@ -46,6 +49,8 @@ const cycleLevel = (l: Level): Level => (l === 0 ? 3 : ((l - 1) as Level))
  */
 export const useVehicleStore = defineStore('vehicle', () => {
   const gear = ref<Gear>('P')
+  /** Contact : le véhicule est prêt (READY) ou éteint. L'écran s'éteint avec lui ; la charge continue. */
+  const ready = ref(true)
   const speed = ref(0)
   const power = ref(0)
   const battery = ref(78)
@@ -59,6 +64,10 @@ export const useVehicleStore = defineStore('vehicle', () => {
   const hazard = ref(false)
   const cruise = ref(false)
   const cruiseSpeed = ref(0)
+  const batteryTemp = ref(24)
+  const chargerKw = ref(150)
+  /** Séance de charge en cours : énergie reçue, durée et relevé (état de charge, puissance) pour la courbe. */
+  const session = reactive({ active: false, kwh: 0, seconds: 0, startSoc: 0, points: [] as { soc: number; kw: number }[] })
   let regenTicks = 0
   let chargeDoneSent = false
 
@@ -127,7 +136,8 @@ export const useVehicleStore = defineStore('vehicle', () => {
   const overLimit = computed(
     () => features.isla && speed.value > speedLimit.value + (parseInt(String(features.speedTolerance)) || 0),
   )
-  const chargeInfo = computed(() => chargeStatus(battery.value, plug.value, charge))
+  const chargeCtx = () => ({ batteryTemp: batteryTemp.value, chargerKw: chargerKw.value })
+  const chargeInfo = computed(() => chargeStatus(battery.value, plug.value, charge, chargeCtx()))
   const lkaActive = computed(() => features.lka && speed.value >= 60)
   const currentTrack = computed(() => TRACKS[media.track]!)
   const currentStation = computed(() => RADIO[media.station]!)
@@ -135,6 +145,10 @@ export const useVehicleStore = defineStore('vehicle', () => {
   // ---------- Conduite ----------
   function setGear(g: Gear): boolean {
     if (g === gear.value) return true
+    if (!ready.value) {
+      emit({ type: 'gear-refused', reason: 'off', gear: g })
+      return false
+    }
     if (speed.value > 5 && (g === 'R' || g === 'P')) {
       emit({ type: 'gear-refused', reason: 'moving', gear: g })
       return false
@@ -160,6 +174,28 @@ export const useVehicleStore = defineStore('vehicle', () => {
   function setBattery(pct: number) {
     battery.value = Math.max(0, Math.min(100, Math.round(pct)))
     chargeDoneSent = false
+  }
+
+  /** Démarre ou éteint le véhicule ; on ne l'éteint qu'à l'arrêt, en P. */
+  function setReady(on: boolean): boolean {
+    if (on === ready.value) return true
+    if (!on && (gear.value !== 'P' || speed.value > 0)) {
+      emit({ type: 'power-refused' })
+      return false
+    }
+    ready.value = on
+    if (!on) {
+      cruise.value = false
+      turn.value = null
+      power.value = 0
+      features.utilityMode = false
+    }
+    emit({ type: 'power', on })
+    return true
+  }
+
+  function setChargerKw(kw: number) {
+    chargerKw.value = kw
   }
 
   function setSpeed(v: number) {
@@ -212,6 +248,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
     if (p !== 'none' && gear.value !== 'P') return false
     plug.value = p
     if (p !== 'none') body.chargePortOpen = true
+    Object.assign(session, { active: p !== 'none', kwh: 0, seconds: 0, startSoc: battery.value, points: [] })
     chargeDoneSent = false
     return true
   }
@@ -349,9 +386,31 @@ export const useVehicleStore = defineStore('vehicle', () => {
       }
       if (regenTicks > 0 && --regenTicks === 0) power.value = 6 + speed.value * 0.32
     }
-    const cs = chargeStatus(battery.value, plug.value, charge)
-    if (cs.charging) battery.value = Math.min(cs.limit, battery.value + ((cs.kw * seconds) / 3600 / BATTERY_KWH) * 100)
-    else if (plug.value !== 'none' && !chargeDoneSent) {
+    // La charge est intégrée par pas de 5 s simulées : la puissance suit la courbe à chaque pas.
+    const steps = Math.max(1, Math.ceil(seconds / 5))
+    const dt = seconds / steps
+    let kwNow = 0
+    for (let i = 0; i < steps; i++) {
+      const cs = chargeStatus(battery.value, plug.value, charge, chargeCtx())
+      kwNow = cs.kw
+      if (cs.charging) {
+        battery.value = Math.min(cs.limit, battery.value + ((cs.kw * dt) / 3600 / BATTERY_KWH) * 100)
+        session.kwh += (cs.kw * dt) / 3600
+        session.seconds += dt
+      }
+      batteryTemp.value = nextBatteryTemp(batteryTemp.value, dt, {
+        kw: cs.kw,
+        speed: speed.value,
+        outside: outsideTemp.value,
+        preheat: charge.preconditioning && plug.value === 'none' && nav.destination?.kind === 'charger',
+      })
+    }
+    if (session.active) {
+      session.points.push({ soc: battery.value, kw: kwNow })
+      if (session.points.length > 720) session.points.shift()
+    }
+    const end = chargeStatus(battery.value, plug.value, charge, chargeCtx())
+    if (!end.charging && plug.value !== 'none' && !chargeDoneSent) {
       chargeDoneSent = true
       emit({ type: 'charge-complete' })
     }
@@ -362,10 +421,10 @@ export const useVehicleStore = defineStore('vehicle', () => {
   }
 
   return {
-    gear, speed, power, battery, odometer, trip, tripMinutes, consumption, outsideTemp, plug, turn, hazard, cruise, cruiseSpeed,
+    gear, ready, speed, power, battery, batteryTemp, chargerKw, session, odometer, trip, tripMinutes, consumption, outsideTemp, plug, turn, hazard, cruise, cruiseSpeed,
     features, climate, media, nav, call, body, charge,
     moving, range, speedLimit, overLimit, chargeInfo, lkaActive, currentTrack, currentStation,
-    onEvent, setGear, maxSpeed, setSpeed, setBattery, toggleTurn, toggleHazard, toggleCruise, paddle, setPlug,
+    onEvent, setGear, maxSpeed, setSpeed, setBattery, setChargerKw, setReady, toggleTurn, toggleHazard, toggleCruise, paddle, setPlug,
     setTemp, nudgeTemp, setFan, toggleClimate, cycleSeat, setSeat, cycleAirflow,
     togglePlay, step, playStation, playTrack, setVolume, toggleMute, toggleFavoriteStation,
     navigateTo, cancelRoute, dial, ringIncoming, answer, hangUp, toggleBody, setFeature, tick,

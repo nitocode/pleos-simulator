@@ -24,7 +24,13 @@ const off = vehicle.onEvent((e) => {
   if (e.type === 'arrived') pleos.notify(`Vous êtes arrivé : ${e.place}`, 'arrive')
   if (e.type === 'charge-complete') pleos.notify('Charge terminée', 'battery-charging')
   if (e.type === 'auto-locked') pleos.notify('Portes verrouillées automatiquement', 'lock')
-  if (e.type === 'gear-refused') pleos.notify(e.reason === 'moving' ? `Arrêtez le véhicule avant de passer en ${e.gear}` : 'Débranchez le câble de charge', 'warning')
+  if (e.type === 'gear-refused') pleos.notify(e.reason === 'moving' ? `Arrêtez le véhicule avant de passer en ${e.gear}` : e.reason === 'off' ? 'Démarrez le véhicule pour changer de rapport' : 'Débranchez le câble de charge', 'warning')
+  if (e.type === 'power-refused') pleos.notify('Arrêtez le véhicule et passez en P pour l’éteindre', 'warning')
+  if (e.type === 'power' && !e.on) {
+    pleos.panel = null
+    pleos.gleo = null
+    pleos.cameraFull = false
+  }
 })
 onScopeDispose(() => off())
 

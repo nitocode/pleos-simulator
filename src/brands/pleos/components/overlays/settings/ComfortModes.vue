@@ -34,7 +34,7 @@ const WASH_ITEMS: { label: string; icon: IconName; on: () => string }[] = [
 ]
 
 const washBlock = computed(() => (vehicle.speed > 20 ? 'La vitesse dépasse 20 km/h' : ''))
-const petBlock = computed(() => (!parked.value ? 'Passez en P à l’arrêt' : ''))
+const petBlock = computed(() => (!vehicle.ready ? 'Démarrez le véhicule' : !parked.value ? 'Passez en P à l’arrêt' : ''))
 const utilityBlock = computed(() => (!parked.value ? 'Passez en P à l’arrêt' : ''))
 const neutralBlock = computed(() => (vehicle.speed > 5 ? 'Arrêtez le véhicule' : ''))
 

@@ -33,6 +33,7 @@ const MODE = { Eco: '#16b157', Normal: '#2f7bf6', Sport: '#ef5a2a', Snow: '#59b7
 
 <template>
   <div class="pleos-flat relative grid overflow-hidden rounded-[16px] bg-[var(--flat-bg)] text-[var(--flat-ink)] shadow-[0_0_0_7px_#050608,0_14px_30px_rgb(0_0_0/0.6)] transition-colors duration-500 select-none" :class="{ light: pleos.flatLight }" :style="{ width: `${width}px`, height: `${height}px`, gridTemplateColumns: '48px 1fr 1.25fr 1fr', filter: `brightness(${0.7 + (pleos.prefs.brightness / 20) * 0.3})` }">
+    <div v-if="!vehicle.ready" class="absolute inset-0 z-10 bg-black" />
     <div class="flex h-full flex-col items-center justify-center gap-3 border-r border-[var(--flat-line)]">
       <template v-if="pleos.prefs.flatLights">
         <Icon v-if="vehicle.features.headlights !== 'OFF'" name="headlight" size="22" class="text-[#2fd36b]" />

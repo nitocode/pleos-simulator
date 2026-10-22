@@ -66,7 +66,7 @@ function toggleBody(key: 'mirrorsFolded' | 'trunkOpen' | 'chargePortOpen') {
       <Icon v-if="vehicle.features.lka" name="lane" size="20" :class="vehicle.lkaActive ? 'text-ok' : 'text-ink-3'" />
       <span v-if="vehicle.features.autoHold" class="text-[10px] leading-[1.05] font-extrabold" :class="vehicle.gear === 'D' && !vehicle.moving ? 'text-ok' : 'text-ink-3'">AUTO<br />HOLD</span>
       <Icon v-if="vehicle.battery < 15" name="warning" size="20" class="text-warn" />
-      <span class="ml-auto text-[13px] font-extrabold tracking-[0.14em]" :class="vehicle.moving ? 'text-ink-3' : 'text-ok'">READY</span>
+      <span class="ml-auto text-[13px] font-extrabold tracking-[0.14em]" :class="vehicle.ready && !vehicle.moving ? 'text-ok' : 'text-ink-3'">{{ vehicle.ready ? 'READY' : 'OFF' }}</span>
     </div>
 
     <!-- vue centrale -->

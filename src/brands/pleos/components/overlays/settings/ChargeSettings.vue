@@ -8,6 +8,7 @@ import SettingItemRow from '../SettingItemRow.vue'
 import PSlider from '../../ui/PSlider.vue'
 import PButton from '../../ui/PButton.vue'
 import EnergyApp from '../../../apps/EnergyApp.vue'
+import ChargeCurve from './ChargeCurve.vue'
 
 /** Paramètres de Charger : état de la batterie, limites CC/CA et options du manuel. */
 const vehicle = useVehicleStore()
@@ -41,6 +42,7 @@ const end = computed(() => clock(new Date(Date.now() + status.value.minutesLeft 
         </div>
       </div>
     </div>
+    <ChargeCurve />
     <div class="flex items-center gap-4 border-b border-line py-3">
       <span class="w-[150px] flex-none text-[15.5px] font-semibold">Chargeur CC</span>
       <PSlider v-model="vehicle.charge.dcLimit" :min="50" :max="100" :step="5" unit=" %" icon="bolt" label="Limite de charge CC" />
