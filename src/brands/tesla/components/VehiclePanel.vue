@@ -6,11 +6,14 @@ import type { Gear } from '@/core/vehicle/types'
 import { useVehicleStore } from '@/core/vehicle/store'
 import { useTeslaStore } from '../store/tesla'
 import CarRender from './CarRender.vue'
+import CarScene, { type Anchor } from '../three/CarScene.vue'
 
 /**
  * Zone « État du véhicule », d'après les captures du manuel : P R N D et batterie en haut, témoins à gauche,
  * bande des modes de conduite (glisser vers le haut : D, vers le bas : R, toucher : P), véhicule avec repères
  * Coffre avant / Coffre arrière / verrou / prise de recharge, puis le mini-lecteur multimédia.
+ * La voiture est une scène 3D (vue de trois quarts à l'arrêt, troisième personne en conduite) ; sans WebGL,
+ * le dessin de profil prend le relais.
  */
 const vehicle = useVehicleStore()
 const tesla = useTeslaStore()
@@ -23,6 +26,15 @@ const hold = computed(() => vehicle.features.autoHold && vehicle.gear === 'D' &&
 /** La bande est masquée aux vitesses d'autoroute (manuel, « Changement »). */
 const stripVisible = computed(() => vehicle.speed < 80)
 const laneSeconds = computed(() => (vehicle.speed > 0 ? Math.max(0.3, 2.6 - vehicle.speed / 50) : 0))
+const webgl = ref(true)
+/** Points de la voiture projetés à l'écran (en %), et vrai quand la caméra est posée en vue de trois quarts. */
+const anchors = ref<Record<'frunk' | 'roof' | 'trunk' | 'port', Anchor> | null>(null)
+const parkedView = ref(false)
+function onAnchors(a: Record<'frunk' | 'roof' | 'trunk' | 'port', Anchor>, still: boolean) {
+  anchors.value = a
+  parkedView.value = still
+}
+const at = (a: Anchor) => ({ left: `${a.x}%`, top: `${a.y}%` })
 const playing = computed(() => vehicle.media.playing)
 
 // bande des modes de conduite : glissé vertical sur la poignée
@@ -118,27 +130,44 @@ function lock() {
       </div>
     </Transition>
 
-    <!-- véhicule et repères : positions en % de la boîte de la voiture (rapport 400 × 140) -->
-    <div class="absolute top-[46%] right-3 left-[56px] -translate-y-1/2">
+    <!-- visualisation 3D du véhicule et repères accrochés aux points projetés -->
+    <div v-if="webgl" class="absolute inset-x-0 top-0 bottom-[60px]">
+      <CarScene
+        :driving="driving && vehicle.ready"
+        :speed="vehicle.speed"
+        :frunk-open="tesla.frunkOpen"
+        :trunk-open="vehicle.body.trunkOpen"
+        :blink-l="vehicle.hazard || vehicle.turn === 'L'"
+        :blink-r="vehicle.hazard || vehicle.turn === 'R'"
+        :night="tesla.night"
+        :cruise="vehicle.cruise"
+        @anchors="onAnchors"
+        @fallback="webgl = false"
+      />
+      <Transition name="fade">
+        <div v-if="anchors && parkedView && parked" class="absolute inset-0">
+          <button type="button" class="press absolute -translate-x-1/2 -translate-y-[calc(100%+64px)] text-center text-[12.5px] leading-tight whitespace-nowrap" :style="at(anchors.frunk)" @click="frunk"><span class="block text-ink-2">Coffre avant</span><b class="font-semibold">{{ tesla.frunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
+          <span class="pointer-events-none absolute h-[60px] w-px -translate-y-full bg-ink-3/60" :style="at(anchors.frunk)" />
+          <button type="button" class="press absolute grid size-9 -translate-x-1/2 -translate-y-[calc(100%+30px)] place-items-center rounded-full" :style="at(anchors.roof)" :aria-label="vehicle.body.locked ? 'Déverrouiller' : 'Verrouiller'" @click="lock"><Icon :name="vehicle.body.locked ? 'lock' : 'unlock'" size="20" /></button>
+          <span class="pointer-events-none absolute h-[28px] w-px -translate-y-full bg-ink-3/60" :style="at(anchors.roof)" />
+          <button type="button" class="press absolute -translate-x-1/2 -translate-y-[calc(100%+64px)] text-center text-[12.5px] leading-tight whitespace-nowrap" :style="at(anchors.trunk)" @click="trunk"><span class="block text-ink-2">Coffre arrière</span><b class="font-semibold">{{ vehicle.body.trunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
+          <span class="pointer-events-none absolute h-[60px] w-px -translate-y-full bg-ink-3/60" :style="at(anchors.trunk)" />
+          <button type="button" class="press absolute grid size-8 translate-x-1 -translate-y-1/2 place-items-center rounded-full" :class="vehicle.body.chargePortOpen ? 'text-ok' : 'text-ink'" :style="at(anchors.port)" :aria-label="vehicle.body.chargePortOpen ? 'Fermer la trappe de recharge' : 'Ouvrir la trappe de recharge'" @click="port"><Icon name="bolt" size="17" /></button>
+        </div>
+      </Transition>
+      <p v-if="vehicle.chargeInfo.charging" class="absolute inset-x-0 bottom-3 text-center text-[13px] font-semibold text-ok">{{ vehicle.chargeInfo.label }} · {{ vehicle.chargeInfo.minutesLeft }} min</p>
+    </div>
+
+    <!-- repli sans WebGL : dessin de profil -->
+    <div v-else class="absolute top-[46%] right-3 left-[56px] -translate-y-1/2">
       <div class="relative aspect-[400/140]">
-        <!-- route en conduite : bords et marquage qui défilent sous la voiture -->
         <div v-if="driving" class="pointer-events-none absolute top-[88%] -right-3 -left-[56px] h-14 overflow-hidden" aria-hidden="true">
           <div class="absolute inset-x-0 top-[38%] h-[3px] bg-ink-3/25" />
           <div class="road absolute top-[70%] h-[4px] w-[200%]" :style="{ animationDuration: `${laneSeconds || 9999}s` }" />
           <div class="absolute inset-x-0 bottom-0 h-[3px] bg-ink-3/25" />
         </div>
         <CarRender :frunk-open="tesla.frunkOpen" :trunk-open="vehicle.body.trunkOpen" :blink-l="vehicle.hazard || vehicle.turn === 'L'" :blink-r="vehicle.hazard || vehicle.turn === 'R'" class="relative" />
-        <template v-if="parked">
-          <button type="button" class="press absolute -top-[92%] left-0 text-left text-[12.5px] leading-tight" @click="frunk"><span class="block text-ink-2">Coffre avant</span><b class="font-semibold">{{ tesla.frunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
-          <span class="pointer-events-none absolute -top-[48%] left-[17%] h-[94%] w-px bg-ink-3/60" />
-          <button type="button" class="press absolute -top-[66%] left-[54%] grid size-9 -translate-x-1/2 place-items-center rounded-full" :aria-label="vehicle.body.locked ? 'Déverrouiller' : 'Verrouiller'" @click="lock"><Icon :name="vehicle.body.locked ? 'lock' : 'unlock'" size="20" /></button>
-          <span class="pointer-events-none absolute -top-[30%] left-[54%] h-[38%] w-px bg-ink-3/60" />
-          <button type="button" class="press absolute -top-[110%] right-0 text-right text-[12.5px] leading-tight" @click="trunk"><span class="block text-ink-2">Coffre arrière</span><b class="font-semibold">{{ vehicle.body.trunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
-          <span class="pointer-events-none absolute -top-[66%] left-[91%] h-[96%] w-px bg-ink-3/60" />
-        </template>
-        <button type="button" class="press absolute top-[22%] -right-3 grid size-8 place-items-center rounded-full" :class="vehicle.body.chargePortOpen ? 'text-ok' : 'text-ink'" :aria-label="vehicle.body.chargePortOpen ? 'Fermer la trappe de recharge' : 'Ouvrir la trappe de recharge'" @click="port"><Icon name="bolt" size="17" /></button>
       </div>
-      <p v-if="vehicle.chargeInfo.charging" class="mt-6 text-center text-[13px] font-semibold text-ok">{{ vehicle.chargeInfo.label }} · {{ vehicle.chargeInfo.minutesLeft }} min</p>
     </div>
 
     <!-- mini-lecteur multimédia -->

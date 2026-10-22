@@ -13,6 +13,7 @@ Reconstitution d'après le manuel du conducteur du Model 3 (2024+) :
 - **Écran tactile** : barre d'état, zone d'état du véhicule (rapport, vitesse, coffres, trappe de recharge), carte et navigation, barre inférieure (climatisation, Mes applis, lanceur d'applications, volume).
 - **Contrôles** avec recherche : Rapide, Dynamique, Recharge, Éclairage, Affichage, Sécurité, Navigation, Entretien, Logiciel.
 - **Disposition** calquée sur les captures annotées du manuel : zone d'état du véhicule pleine hauteur (P R N D, batterie, témoins, bande des modes de conduite à glisser, repères Coffre avant / Coffre arrière), carte avec barre d'état et colonne de boutons, barre inférieure sombre.
+- **Visualisation 3D** (three.js) : Model 3 vue de trois quarts à l'arrêt ; en conduite, la caméra tourne autour de la voiture jusqu'à la vue à la troisième personne, avec la route, les marquages, les véhicules voisins et la trajectoire bleue sous régulateur. Sans WebGL, un dessin de profil prend le relais.
 - **Climatisation** : fenêtre rapide (< >) et écran principal avec l'habitacle, Auto, A/C, sièges chauffants à 3 niveaux, volant, dégivreurs, ventilation, air recyclé, Séparer ; Maintien de la climatisation, Mode Animaux (écran de température) et Mode Camping.
 - **Apps** : Multimédia, Téléphone, Recharge (courbe de charge), Énergie, Caméra de recul, Météo.
 - **Commandes du volant** : bouton de défilement gauche (volume, morceau, appels), redémarrage de l'écran par appui long.
@@ -40,6 +41,7 @@ Chaque modèle déclare sa batterie, son autonomie par % et sa **courbe de charg
 | Build | Vite |
 | Style | Tailwind CSS 4, avec des jetons de thème sémantiques |
 | État | Pinia |
+| 3D (Tesla) | three.js, chargé avec l'interface Tesla uniquement |
 | Routage | vue-router, en mode hash pour GitHub Pages |
 | Tests | Vitest et jsdom |
 
