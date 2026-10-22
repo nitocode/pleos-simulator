@@ -4,13 +4,14 @@ import Icon from '@/core/ui/Icon.vue'
 import { clock, distance, fmt1 } from '@/core/format'
 import { chargeKw } from '@/core/vehicle/simulation'
 import { useVehicleStore } from '@/core/vehicle/store'
-import TSlider from '../components/ui/TSlider.vue'
+import { useTeslaStore } from '../store/tesla'
 
 /**
  * Recharge : niveau de batterie, puissance en direct, énergie ajoutée et temps restant, limite de charge, et courbe de
  * charge du modèle (puissance acceptée selon l'état de charge, à la température et à la borne actuelles).
  */
 const vehicle = useVehicleStore()
+const tesla = useTeslaStore()
 const info = computed(() => vehicle.chargeInfo)
 const ac = computed(() => vehicle.plug === 'ac')
 const W = 520
@@ -24,9 +25,10 @@ const trace = computed(() => (vehicle.session.active && vehicle.session.points.l
 const end = computed(() => clock(new Date(Date.now() + info.value.minutesLeft * 60000), true))
 const limit = computed({
   get: () => (ac.value ? vehicle.charge.acLimit : vehicle.charge.dcLimit),
+  // La limite descend au plus à 50 % (bas de la zone Quotidien).
   set: (v: number) => {
-    vehicle.charge.acLimit = v
-    vehicle.charge.dcLimit = v
+    vehicle.charge.acLimit = Math.max(50, v)
+    vehicle.charge.dcLimit = Math.max(50, v)
   },
 })
 const stats = computed(() => [
@@ -46,14 +48,22 @@ const stats = computed(() => [
         <p class="text-ink-2">{{ distance(vehicle.range) }} d’autonomie</p>
       </div>
     </div>
-    <div class="relative mt-4 h-3 overflow-hidden rounded-full bg-surface-3">
-      <div class="h-full rounded-full bg-ok transition-[width] duration-700 ease-ui" :style="{ width: `${vehicle.battery}%` }" />
-      <span class="absolute inset-y-0 w-0.5 bg-ink" :style="{ left: `${limit}%` }" />
-    </div>
-    <div class="mt-4 flex items-center gap-4">
-      <span class="w-[120px] flex-none text-[14px] font-semibold">Limite de charge</span>
-      <TSlider v-model="limit" :min="50" :max="100" :step="5" label="Limite de charge" />
-      <b class="tnum w-16 text-right whitespace-nowrap">{{ limit }} %</b>
+    <!-- limite de charge : barre de batterie avec curseur, zones Quotidien / Voyage (capture du manuel) -->
+    <div class="mt-4 rounded-xl bg-surface-2 px-4 pt-3 pb-2">
+      <p class="text-[14px]">Limite de charge : <b>{{ limit }} %</b></p>
+      <button type="button" class="press text-[13px] font-semibold text-accent" @click="tesla.notify(`Limite de ${limit} % enregistrée pour ce lieu`, 'pin')">Définir la limite de charge pour ce lieu</button>
+      <div class="relative mt-2 h-12">
+        <span v-for="t in [20, 40, 60, 80]" :key="t" class="absolute top-0 -translate-x-1/2 text-[11px] text-ink-2" :style="{ left: `${t}%` }">{{ t }}</span>
+        <i v-for="t in 9" :key="`k${t}`" class="absolute top-[17px] h-1.5 w-px bg-ink-3" :style="{ left: `${t * 10}%` }" />
+        <div class="absolute inset-x-0 top-[28px] h-2 overflow-hidden rounded-full bg-surface-3">
+          <div class="h-full rounded-full bg-ok transition-[width] duration-700 ease-ui" :style="{ width: `${vehicle.battery}%` }" />
+        </div>
+        <input v-model.number="limit" type="range" min="0" max="100" step="5" aria-label="Limite de charge" class="t-limit absolute inset-x-0 top-[20px] h-6 w-full cursor-pointer appearance-none bg-transparent" />
+      </div>
+      <div class="relative h-6 text-[11.5px] text-ink-2">
+        <span class="absolute top-0 h-2 border-x border-b border-ink-3/70" style="left: 50%; width: 40%" /><span class="absolute top-2.5 -translate-x-1/2" style="left: 70%">Quotidien</span>
+        <span class="absolute top-0 h-2 border-r border-b border-ink-3/70" style="left: 90%; width: 10%" /><span class="absolute top-2.5 -translate-x-1/2" style="left: 95%">Voyage</span>
+      </div>
     </div>
     <dl class="mt-4 grid grid-cols-2 gap-2.5">
       <div v-for="s in stats" :key="s.label" class="rounded-xl bg-surface-2 px-3.5 py-2.5"><dt class="text-[12px] text-ink-2">{{ s.label }}</dt><dd class="tnum text-[17px] font-semibold">{{ s.value }}</dd></div>
@@ -70,3 +80,10 @@ const stats = computed(() => [
     <p class="mt-1 text-[12px] text-ink-2">Pointillé : capacité de la batterie à {{ Math.round(vehicle.batteryTemp) }} °C{{ ac ? '' : `, borne ${vehicle.chargerKw} kW` }}. La vitesse de charge baisse quand la batterie est froide ou presque pleine.</p>
   </div>
 </template>
+
+<style scoped>
+.t-limit::-webkit-slider-runnable-track { height: 24px; background: transparent; }
+.t-limit::-moz-range-track { height: 24px; background: transparent; }
+.t-limit::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; background: #2b2e34; border: 3px solid #fff; box-shadow: 0 1px 4px rgb(0 0 0 / 0.4); }
+.t-limit::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #2b2e34; border: 3px solid #fff; }
+</style>

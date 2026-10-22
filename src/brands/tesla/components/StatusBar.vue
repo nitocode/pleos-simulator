@@ -7,8 +7,8 @@ import { useVehicleStore } from '@/core/vehicle/store'
 import { useTeslaStore } from '../store/tesla'
 
 /**
- * Barre d'état supérieure (manuel, « Icônes de la barre d'état supérieure ») : verrouillage, météo/température,
- * heure, mode Sentinelle (à l'arrêt), profil (à l'arrêt), puis Wi-Fi, réseau, Bluetooth et notifications.
+ * Barre d'état supérieure, au-dessus de la carte (capture du manuel) : verrouillage, heure, température, Sentinelle
+ * et Profil à l'arrêt ; à droite Wi-Fi, réseau et état de l'airbag passager avant.
  */
 const vehicle = useVehicleStore()
 const tesla = useTeslaStore()
@@ -23,21 +23,23 @@ function toggleLock() {
 </script>
 
 <template>
-  <header class="flex h-full items-center gap-4 px-5 text-[15px] font-semibold">
-    <button type="button" class="press grid size-9 place-items-center rounded-full" :aria-label="vehicle.body.locked ? 'Déverrouiller' : 'Verrouiller'" @click="toggleLock">
-      <Icon :name="vehicle.body.locked ? 'lock' : 'unlock'" size="20" :class="vehicle.body.locked ? 'text-ink' : 'text-warn'" />
+  <header class="flex h-full items-center gap-5 bg-surface/85 px-4 text-[14px] font-semibold backdrop-blur-md">
+    <button type="button" class="press grid size-8 place-items-center rounded-full" :aria-label="vehicle.body.locked ? 'Déverrouiller' : 'Verrouiller'" @click="toggleLock">
+      <Icon :name="vehicle.body.locked ? 'lock' : 'unlock'" size="18" />
     </button>
-    <span class="flex items-center gap-1.5 text-ink-2"><Icon name="sun" size="18" />{{ temp }}</span>
-    <span class="tnum text-ink">{{ clock(now, true) }}</span>
-    <button v-if="parked" type="button" class="press grid size-9 place-items-center rounded-full" :class="tesla.prefs.sentinel ? 'text-crit' : 'text-ink-3'" aria-label="Mode Sentinelle" :aria-pressed="tesla.prefs.sentinel" @click="tesla.prefs.sentinel = !tesla.prefs.sentinel; tesla.notify(tesla.prefs.sentinel ? 'Mode Sentinelle activé' : 'Mode Sentinelle désactivé', 'eye')">
-      <Icon name="eye" size="20" />
+    <span class="tnum">{{ clock(now, true) }}</span>
+    <button type="button" class="press" aria-label="Météo" @click="tesla.launch('weather')">{{ temp }}</button>
+    <button v-if="parked" type="button" class="press flex items-center gap-1.5 text-ink-2" aria-label="Profils conducteurs" @click="tesla.notify('Profil conducteur : Conducteur 1', 'user')"><Icon name="user" size="17" />Profil</button>
+    <button v-if="parked" type="button" class="press grid size-8 place-items-center rounded-full" :class="tesla.prefs.sentinel ? 'text-crit' : 'text-ink-3'" aria-label="Mode Sentinelle" :aria-pressed="tesla.prefs.sentinel" @click="tesla.prefs.sentinel = !tesla.prefs.sentinel; tesla.notify(tesla.prefs.sentinel ? 'Mode Sentinelle activé' : 'Mode Sentinelle désactivé', 'eye')">
+      <Icon name="eye" size="18" />
     </button>
     <span class="ml-auto flex items-center gap-4 text-ink-2">
-      <Icon name="wifi" size="19" />
-      <span class="flex items-center gap-1 text-[12px]"><Icon name="signal" size="19" />LTE</span>
-      <Icon name="bluetooth" size="19" class="text-accent" />
-      <button type="button" class="press grid size-9 place-items-center rounded-full" aria-label="Alertes du véhicule" @click="tesla.notify('Aucune alerte du véhicule', 'check')"><Icon name="bell" size="20" /></button>
-      <button v-if="parked" type="button" class="press flex items-center gap-1.5 rounded-full bg-surface-2 py-1 pr-3 pl-1 text-[13px] text-ink" aria-label="Profil conducteur" @click="tesla.notify('Profil conducteur : Conducteur 1', 'user')"><span class="grid size-7 place-items-center rounded-full bg-accent text-on-accent"><Icon name="user" size="15" /></span>Conducteur 1</button>
+      <Icon name="wifi" size="17" />
+      <span class="flex items-center gap-1 text-[11px]"><Icon name="signal" size="17" />LTE</span>
+      <Icon name="bluetooth" size="17" />
+      <span class="flex items-center gap-1.5 rounded-md border border-line px-1.5 py-0.5 text-[9.5px] leading-[1.05] font-bold text-ink-2" title="État de l’airbag passager avant">
+        <Icon name="user" size="13" /><span>AIRBAG<br />PASSAGER <span class="text-warn">ON</span></span>
+      </span>
     </span>
   </header>
 </template>

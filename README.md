@@ -12,7 +12,8 @@ Reconstitution d'après le manuel du conducteur du Model 3 (2024+) :
 
 - **Écran tactile** : barre d'état, zone d'état du véhicule (rapport, vitesse, coffres, trappe de recharge), carte et navigation, barre inférieure (climatisation, Mes applis, lanceur d'applications, volume).
 - **Contrôles** avec recherche : Rapide, Dynamique, Recharge, Éclairage, Affichage, Sécurité, Navigation, Entretien, Logiciel.
-- **Climatisation** : Auto, sièges chauffants à 3 niveaux, volant, dégivreurs (pare-brise à 3 états), ventilation, air recyclé, Séparer, flux d'air.
+- **Disposition** calquée sur les captures annotées du manuel : zone d'état du véhicule pleine hauteur (P R N D, batterie, témoins, bande des modes de conduite à glisser, repères Coffre avant / Coffre arrière), carte avec barre d'état et colonne de boutons, barre inférieure sombre.
+- **Climatisation** : fenêtre rapide (< >) et écran principal avec l'habitacle, Auto, A/C, sièges chauffants à 3 niveaux, volant, dégivreurs, ventilation, air recyclé, Séparer ; Maintien de la climatisation, Mode Animaux (écran de température) et Mode Camping.
 - **Apps** : Multimédia, Téléphone, Recharge (courbe de charge), Énergie, Caméra de recul, Météo.
 - **Commandes du volant** : bouton de défilement gauche (volume, morceau, appels), redémarrage de l'écran par appui long.
 

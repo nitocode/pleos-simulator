@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 import type { IconName } from '@/core/ui/icons'
 
-export type TeslaPanel = null | 'controls' | 'climate' | 'launcher' | 'volume'
+export type TeslaPanel = null | 'controls' | 'climate' | 'climate-quick' | 'launcher' | 'volume'
+export type ClimateKeeper = 'Arrêt' | 'Maintien' | 'Animaux' | 'Camping'
 export type TeslaApp = 'media' | 'phone' | 'energy' | 'charge' | 'camera' | 'weather'
 export type ControlsTab = 'quick' | 'dynamics' | 'charge' | 'lights' | 'display' | 'safety' | 'nav' | 'service' | 'software'
 
@@ -28,6 +29,12 @@ export const useTeslaStore = defineStore('tesla', () => {
   const forcedNight = ref<boolean | null>(null)
   const cameraFull = ref(false)
   const frunkOpen = ref(false)
+  /** Zone d'état du véhicule élargie (glisser la poignée vers la carte). */
+  const wideVehicle = ref(false)
+  /** Maintien de la climatisation, Mode Animaux, Mode Camping (manuel) : climatisation maintenue en P, même véhicule éteint. */
+  const keeper = ref<ClimateKeeper>('Arrêt')
+  /** Volet climatisation avant/arrière et volant/sièges en Auto (écran principal de climatisation). */
+  const climateZone = ref<'Avant' | 'Arrière'>('Avant')
   /** Redémarrage de l'écran tactile (deux boutons du volant, appui long) : écran noir quelques secondes. */
   const rebooting = ref(false)
   let toastTimer: ReturnType<typeof setTimeout> | undefined
@@ -48,6 +55,10 @@ export const useTeslaStore = defineStore('tesla', () => {
     ambient: true,
     avoidTolls: true,
     autoUpdate: true,
+    energyDisplay: '%' as '%' | 'Distance',
+    traffic: true,
+    wiperDefrost: false,
+    satellite: false,
   })
 
   /** Mode nuit : forcé par la simulation, sinon selon le réglage Affichage (Auto : de 19 h à 7 h). */
@@ -83,5 +94,5 @@ export const useTeslaStore = defineStore('tesla', () => {
     myApps.value = myApps.value.includes(id) ? myApps.value.filter((a) => a !== id) : [...myApps.value, id].slice(-4)
   }
 
-  return { panel, app, controlsTab, search, searching, myApps, recent, toast, forcedNight, cameraFull, frunkOpen, rebooting, prefs, night, notify, togglePanel, closePanel, launch, closeApp, toggleMyApp }
+  return { panel, app, controlsTab, search, searching, myApps, recent, toast, forcedNight, cameraFull, frunkOpen, wideVehicle, keeper, climateZone, rebooting, prefs, night, notify, togglePanel, closePanel, launch, closeApp, toggleMyApp }
 })

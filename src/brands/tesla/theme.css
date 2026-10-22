@@ -75,3 +75,40 @@
   --map-route: #5b8cff;
   --map-route-edge: #0c1018;
 }
+
+/* Barre inférieure : toujours sombre, comme sur les captures du manuel (mode jour compris). */
+.tesla .t-dock {
+  --ui-bg: #0b0c0e;
+  --ui-drive: #101114;
+  --ui-surface: #1b1d21;
+  --ui-surface-2: #25272c;
+  --ui-surface-3: #32353b;
+  --ui-line: #2a2d33;
+  --ui-ink: #f4f5f6;
+  --ui-ink-2: #aeb2b9;
+  --ui-ink-3: #70747c;
+  --ui-accent: #4f7bf0;
+  --ui-accent-soft: #1d2c52;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #3ed07e;
+  --ui-warn: #ffb547;
+  --ui-crit: #ff4d63;
+  --ui-cool: #5b8cff;
+  --ui-heat: #ff6a4d;
+  --ui-heat-soft: #4a2219;
+  --ui-cool-soft: #1d2c52;
+  --ui-scrim: rgb(0 0 0 / 0.5);
+  --ui-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  --ui-shadow-pop: 0 18px 50px rgb(0 0 0 / 0.65), 0 0 0 1px rgb(255 255 255 / 0.05);
+
+  --map-land: #1c2026;
+  --map-block: #232830;
+  --map-park: #1c2b24;
+  --map-water: #18344d;
+  --map-road: #353b45;
+  --map-road-edge: #15181d;
+  --map-major: #48505e;
+  --map-route: #5b8cff;
+  --map-route-edge: #0c1018;
+  color: var(--ui-ink);
+}

@@ -46,6 +46,7 @@ const ROWS: Row[] = [
   { tab: 'quick', kind: 'switch', label: 'Coffre arrière', get: () => vehicle.body.trunkOpen, set: (v) => (vehicle.body.trunkOpen = v), hint: 'Disponible en P' },
   { tab: 'quick', kind: 'switch', label: 'Ouvrir la trappe de recharge', get: () => vehicle.body.chargePortOpen, set: (v) => (vehicle.body.chargePortOpen = v) },
   { tab: 'quick', kind: 'switch', label: 'Rétroviseurs rabattus', get: () => vehicle.body.mirrorsFolded, set: (v) => (vehicle.body.mirrorsFolded = v) },
+  { tab: 'quick', kind: 'action', label: 'Point mort', button: 'Maintenir', run: () => { if (vehicle.setGear('N')) tesla.notify('Point mort engagé', 'gauge') }, hint: 'Maintenez l’icône Point mort pour passer en N (manuel, « Changement »).' },
   { tab: 'quick', kind: 'switch', label: 'Mode Sentinelle', get: () => p.sentinel, set: (v) => (p.sentinel = v), hint: 'Surveille les alentours véhicule garé' },
   // Dynamique
   { tab: 'dynamics', kind: 'seg', label: 'Souplesse de direction', options: ['Légère', 'Standard', 'Lourde'], get: () => p.steeringFeel, set: (v) => (p.steeringFeel = v as typeof p.steeringFeel), hint: 'Légère facilite les manœuvres en ville ; Lourde donne plus de réactivité à vitesse élevée.' },
@@ -65,6 +66,7 @@ const ROWS: Row[] = [
   // Affichage
   { tab: 'display', kind: 'seg', label: 'Mode d’affichage', options: ['Auto', 'Jour', 'Nuit'], get: () => p.displayMode, set: (v) => { p.displayMode = v as typeof p.displayMode; nightFlag(false) } },
   { tab: 'display', kind: 'slider', label: 'Luminosité', min: 20, max: 100, step: 5, unit: ' %', get: () => p.brightness, set: (v) => (p.brightness = v) },
+  { tab: 'display', kind: 'seg', label: 'Affichage de l’énergie', options: ['%', 'Distance'], get: () => p.energyDisplay, set: (v) => (p.energyDisplay = v as typeof p.energyDisplay) },
   { tab: 'display', kind: 'seg', label: 'Unité de température', options: ['°C', '°F'], get: () => p.tempUnit, set: (v) => (p.tempUnit = v as typeof p.tempUnit) },
   { tab: 'display', kind: 'seg', label: 'Unité de distance', options: ['km', 'mi'], get: () => p.distanceUnit, set: (v) => (p.distanceUnit = v as typeof p.distanceUnit) },
   { tab: 'display', kind: 'action', label: 'Mes applis', button: 'Réinitialiser', run: () => { tesla.myApps = ['media', 'phone', 'camera']; tesla.notify('Mes applis réinitialisées', 'refresh') } },

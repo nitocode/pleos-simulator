@@ -37,6 +37,11 @@ watch(
   () => vehicle.gear,
   (g) => {
     if (g === 'R') tesla.closePanel()
+    // Maintien de la climatisation, Mode Animaux et Mode Camping ne fonctionnent qu'en P.
+    if (g !== 'P' && tesla.keeper !== 'Arrêt') {
+      tesla.keeper = 'Arrêt'
+      tesla.notify('Maintien de la climatisation désactivé', 'thermometer')
+    }
   },
 )
 
@@ -67,7 +72,8 @@ if (!bench.size) bench.size = brand.defaultSize
     <template #note>
       Reconstruction non officielle, sans lien avec Tesla. La structure de l’écran (barre d’état, zone d’état du véhicule, carte, écran Contrôles, barre
       inférieure avec Mes applis et lanceur), les commandes de climatisation, le changement de rapport, les boutons de défilement du volant et le
-      redémarrage de l’écran suivent le manuel du conducteur du Model 3 (2024+). Graphismes et données sont des reconstitutions de démonstration. La
+      redémarrage de l’écran suivent le manuel du conducteur du Model 3 (2024+) et ses captures annotées (écran tactile, état du véhicule,
+      bande des modes de conduite, climatisation, limite de charge), dont Maintien de la climatisation, Mode Animaux et Mode Camping. Graphismes et données sont des reconstitutions de démonstration. La
       charge suit une courbe estimée d’après des relevés publics (≈ 27 min de 10 à 80 % sur un Superchargeur). Le temps de trajet et de recharge est accéléré ×20.
     </template>
   </BenchShell>
