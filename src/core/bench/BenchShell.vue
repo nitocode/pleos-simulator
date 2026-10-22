@@ -51,9 +51,9 @@ const size = computed(() => props.brand.sizes.find((s) => s.id === bench.size) ?
       <div v-show="bench.view !== 'driver'" class="flex w-full flex-col items-center gap-2">
         <p class="text-[11px] font-semibold tracking-[0.08em] text-bench-dim uppercase">Écran central tactile</p>
         <slot name="central" :size="size" />
-      </div>
-      <div v-show="bench.view !== 'driver'" class="w-full">
-        <slot name="hardware" />
+        <div class="mt-1 w-full">
+          <slot name="hardware" />
+        </div>
       </div>
     </section>
 

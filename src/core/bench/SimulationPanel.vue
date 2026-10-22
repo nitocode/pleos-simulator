@@ -32,6 +32,13 @@ const on = (active: boolean) => (active ? 'border-[#3b74b5] bg-[#24466f] text-wh
       <span class="text-[11.5px] text-bench-dim">{{ max ? 'Faites glisser pour rouler' : 'Passez en D ou R pour rouler' }}</span>
     </div>
     <div class="flex flex-col gap-2">
+      <label for="sim-battery" class="flex justify-between text-[12px] font-semibold text-bench-dim">Batterie <b class="tnum font-medium text-white">{{ Math.round(vehicle.battery) }} % · {{ vehicle.range }} km</b></label>
+      <input id="sim-battery" type="range" min="0" max="100" :value="Math.round(vehicle.battery)" class="w-full" @input="vehicle.setBattery(+($event.target as HTMLInputElement).value)" />
+      <div class="flex flex-wrap gap-1.5">
+        <button v-for="p in [10, 20, 50, 80, 100]" :key="p" type="button" :class="[btn, on(Math.round(vehicle.battery) === p), 'px-3']" @click="vehicle.setBattery(p)">{{ p }} %</button>
+      </div>
+    </div>
+    <div class="flex flex-col gap-2">
       <span class="text-[12px] font-semibold text-bench-dim">Clignotants et régulateur</span>
       <div class="flex flex-wrap gap-1.5">
         <button type="button" :class="[btn, on(vehicle.turn === 'L')]" @click="vehicle.toggleTurn('L')"><Icon name="arrow-left" size="16" />Gauche</button>

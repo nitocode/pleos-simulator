@@ -14,6 +14,16 @@ describe('véhicule simulé', () => {
     expect(v.gear).toBe('D')
   })
 
+  it('fixe le niveau de batterie entre 0 et 100 %', () => {
+    const v = useVehicleStore()
+    v.setBattery(35.4)
+    expect(v.battery).toBe(35)
+    v.setBattery(250)
+    expect(v.battery).toBe(100)
+    v.setBattery(-5)
+    expect(v.battery).toBe(0)
+  })
+
   it('limite la vitesse selon le rapport', () => {
     const v = useVehicleStore()
     v.setSpeed(50)

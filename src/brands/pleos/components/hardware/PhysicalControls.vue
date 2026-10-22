@@ -78,6 +78,20 @@ function paddle(dir: -1 | 1) {
     </div>
 
     <div class="flex flex-wrap items-center justify-center gap-1.5 rounded-[28px] border border-bench-line bg-[#141619] px-3 py-3">
+      <span class="px-1 text-[10.5px] font-semibold tracking-wider text-bench-dim uppercase">Climat</span>
+      <button v-for="b in ([
+        { label: 'AUTO', on: c.auto, run: () => vehicle.toggleClimate('auto') },
+        { label: 'A/C', on: c.ac, run: () => vehicle.toggleClimate('ac') },
+        { label: 'Dégivr. AV', on: c.defrostFront, run: () => vehicle.toggleClimate('defrostFront') },
+        { label: 'Dégivr. AR', on: c.defrostRear, run: () => vehicle.toggleClimate('defrostRear') },
+        { label: 'OFF', on: !c.on, run: () => vehicle.toggleClimate('on') },
+      ] as const)" :key="b.label" type="button" class="press relative h-10 rounded-xl bg-[#22262d] px-3 pb-1 text-[12px] font-semibold text-[#c9cfd8] hover:bg-[#2a2f37]" :aria-pressed="b.on" @click="b.run()">
+        {{ b.label }}
+        <span class="absolute bottom-1.5 left-1/2 h-[3px] w-3 -translate-x-1/2 rounded-full transition-colors" :class="b.on ? 'bg-[#ffa64d] shadow-[0_0_6px_#ffa64d]' : 'bg-[#3a3f47]'" />
+      </button>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-1.5 rounded-[28px] border border-bench-line bg-[#141619] px-3 py-3">
       <span class="px-1 text-[10.5px] font-semibold tracking-wider text-bench-dim uppercase">Volant</span>
       <button v-for="b in ([
         { icon: 'volume-mute', label: 'Silence', run: () => { vehicle.toggleMute(); pleos.showOsd(vehicle.media.muted ? 'Son coupé' : 'Média', vehicle.media.muted ? 0 : vehicle.media.volume, 40, vehicle.media.muted ? 'volume-mute' : 'volume') } },

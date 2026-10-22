@@ -156,6 +156,12 @@ export const useVehicleStore = defineStore('vehicle', () => {
     return gear.value === 'R' ? 15 : gear.value === 'D' ? 150 : 0
   }
 
+  /** Fixe le niveau de batterie (simulation) ; une charge terminée peut ainsi se relancer. */
+  function setBattery(pct: number) {
+    battery.value = Math.max(0, Math.min(100, Math.round(pct)))
+    chargeDoneSent = false
+  }
+
   function setSpeed(v: number) {
     const prev = speed.value
     const next = Math.max(0, Math.min(maxSpeed(), Math.round(v)))
@@ -359,7 +365,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
     gear, speed, power, battery, odometer, trip, tripMinutes, consumption, outsideTemp, plug, turn, hazard, cruise, cruiseSpeed,
     features, climate, media, nav, call, body, charge,
     moving, range, speedLimit, overLimit, chargeInfo, lkaActive, currentTrack, currentStation,
-    onEvent, setGear, maxSpeed, setSpeed, toggleTurn, toggleHazard, toggleCruise, paddle, setPlug,
+    onEvent, setGear, maxSpeed, setSpeed, setBattery, toggleTurn, toggleHazard, toggleCruise, paddle, setPlug,
     setTemp, nudgeTemp, setFan, toggleClimate, cycleSeat, setSeat, cycleAirflow,
     togglePlay, step, playStation, playTrack, setVolume, toggleMute, toggleFavoriteStation,
     navigateTo, cancelRoute, dial, ringIncoming, answer, hangUp, toggleBody, setFeature, tick,
