@@ -118,25 +118,27 @@ function lock() {
       </div>
     </Transition>
 
-    <!-- route (en conduite) -->
-    <svg v-if="driving" viewBox="0 0 400 600" preserveAspectRatio="none" class="absolute inset-0 size-full" aria-hidden="true">
-      <path d="M150 140L20 600M250 140L380 600" stroke="var(--ui-ink-3)" stroke-opacity="0.45" stroke-width="3" fill="none" />
-      <path d="M200 140L200 600" stroke="var(--ui-ink-3)" stroke-opacity="0.6" stroke-width="4" stroke-dasharray="18 26" fill="none" class="road-dash" :style="{ animationDuration: `${laneSeconds || 9999}s` }" />
-    </svg>
-
-    <!-- véhicule et repères -->
-    <div class="absolute top-[18%] right-2 bottom-[14%] left-[52px]">
-      <CarRender :frunk-open="tesla.frunkOpen" :trunk-open="vehicle.body.trunkOpen" :blink-l="vehicle.hazard || vehicle.turn === 'L'" :blink-r="vehicle.hazard || vehicle.turn === 'R'" class="absolute inset-x-0 top-[26%]" />
-      <template v-if="parked">
-        <button type="button" class="press absolute top-[8%] left-[2%] text-left text-[12.5px] leading-tight" @click="frunk"><span class="block text-ink-2">Coffre avant</span><b class="font-semibold">{{ tesla.frunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
-        <span class="pointer-events-none absolute top-[21%] left-[8%] h-[30%] w-px bg-ink-3/60" />
-        <button type="button" class="press absolute top-[14%] left-[48%] grid size-9 place-items-center rounded-full" :aria-label="vehicle.body.locked ? 'Déverrouiller' : 'Verrouiller'" @click="lock"><Icon :name="vehicle.body.locked ? 'lock' : 'unlock'" size="20" /></button>
-        <span class="pointer-events-none absolute top-[23%] left-[53%] h-[12%] w-px bg-ink-3/60" />
-        <button type="button" class="press absolute top-[2%] right-[4%] text-left text-[12.5px] leading-tight" @click="trunk"><span class="block text-ink-2">Coffre arrière</span><b class="font-semibold">{{ vehicle.body.trunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
-        <span class="pointer-events-none absolute top-[15%] right-[14%] h-[22%] w-px bg-ink-3/60" />
-      </template>
-      <button type="button" class="press absolute top-[38%] right-[-1%] grid size-9 place-items-center rounded-full" :class="vehicle.body.chargePortOpen ? 'text-ok' : 'text-ink'" :aria-label="vehicle.body.chargePortOpen ? 'Fermer la trappe de recharge' : 'Ouvrir la trappe de recharge'" @click="port"><Icon name="bolt" size="18" /></button>
-      <p v-if="vehicle.chargeInfo.charging" class="absolute inset-x-0 bottom-0 text-center text-[13px] font-semibold text-ok">{{ vehicle.chargeInfo.label }} · {{ vehicle.chargeInfo.minutesLeft }} min</p>
+    <!-- véhicule et repères : positions en % de la boîte de la voiture (rapport 400 × 140) -->
+    <div class="absolute top-[46%] right-3 left-[56px] -translate-y-1/2">
+      <div class="relative aspect-[400/140]">
+        <!-- route en conduite : bords et marquage qui défilent sous la voiture -->
+        <div v-if="driving" class="pointer-events-none absolute top-[88%] -right-3 -left-[56px] h-14 overflow-hidden" aria-hidden="true">
+          <div class="absolute inset-x-0 top-[38%] h-[3px] bg-ink-3/25" />
+          <div class="road absolute top-[70%] h-[4px] w-[200%]" :style="{ animationDuration: `${laneSeconds || 9999}s` }" />
+          <div class="absolute inset-x-0 bottom-0 h-[3px] bg-ink-3/25" />
+        </div>
+        <CarRender :frunk-open="tesla.frunkOpen" :trunk-open="vehicle.body.trunkOpen" :blink-l="vehicle.hazard || vehicle.turn === 'L'" :blink-r="vehicle.hazard || vehicle.turn === 'R'" class="relative" />
+        <template v-if="parked">
+          <button type="button" class="press absolute -top-[92%] left-0 text-left text-[12.5px] leading-tight" @click="frunk"><span class="block text-ink-2">Coffre avant</span><b class="font-semibold">{{ tesla.frunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
+          <span class="pointer-events-none absolute -top-[48%] left-[17%] h-[94%] w-px bg-ink-3/60" />
+          <button type="button" class="press absolute -top-[66%] left-[54%] grid size-9 -translate-x-1/2 place-items-center rounded-full" :aria-label="vehicle.body.locked ? 'Déverrouiller' : 'Verrouiller'" @click="lock"><Icon :name="vehicle.body.locked ? 'lock' : 'unlock'" size="20" /></button>
+          <span class="pointer-events-none absolute -top-[30%] left-[54%] h-[38%] w-px bg-ink-3/60" />
+          <button type="button" class="press absolute -top-[110%] right-0 text-right text-[12.5px] leading-tight" @click="trunk"><span class="block text-ink-2">Coffre arrière</span><b class="font-semibold">{{ vehicle.body.trunkOpen ? 'Fermer' : 'Ouvrir' }}</b></button>
+          <span class="pointer-events-none absolute -top-[66%] left-[91%] h-[96%] w-px bg-ink-3/60" />
+        </template>
+        <button type="button" class="press absolute top-[22%] -right-3 grid size-8 place-items-center rounded-full" :class="vehicle.body.chargePortOpen ? 'text-ok' : 'text-ink'" :aria-label="vehicle.body.chargePortOpen ? 'Fermer la trappe de recharge' : 'Ouvrir la trappe de recharge'" @click="port"><Icon name="bolt" size="17" /></button>
+      </div>
+      <p v-if="vehicle.chargeInfo.charging" class="mt-6 text-center text-[13px] font-semibold text-ok">{{ vehicle.chargeInfo.label }} · {{ vehicle.chargeInfo.minutesLeft }} min</p>
     </div>
 
     <!-- mini-lecteur multimédia -->
@@ -156,10 +158,14 @@ function lock() {
 </template>
 
 <style scoped>
-.road-dash {
-  animation: road 1s linear infinite;
+/* Marquage au sol : défile vers l'arrière (la voiture roule vers la gauche). */
+.road {
+  background: repeating-linear-gradient(to right, var(--ui-ink-3) 0 26px, transparent 26px 60px);
+  opacity: 0.55;
+  animation: road linear infinite;
 }
 @keyframes road {
-  to { stroke-dashoffset: -44; }
+  from { transform: translateX(-60px); }
+  to { transform: translateX(0); }
 }
 </style>
