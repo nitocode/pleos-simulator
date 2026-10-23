@@ -1,0 +1,77 @@
+/*
+ * Volkswagen ID.3 (ID. Software 2024) : jetons --ui-* (voir src/styles/main.css).
+ * Les photos officielles montrent une interface sombre à accent bleu ; la variante claire sert de mode jour.
+ */
+.vw-id3 {
+  --ui-bg: #e9edf2;
+  --ui-drive: #ffffff;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #eef2f6;
+  --ui-surface-3: #dde3ea;
+  --ui-line: #dfe5ec;
+  --ui-ink: #0d1b2e;
+  --ui-ink-2: #536175;
+  --ui-ink-3: #97a3b3;
+  --ui-accent: #0f7ae5;
+  --ui-accent-soft: #dcecfd;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #1fa35c;
+  --ui-warn: #f08a00;
+  --ui-crit: #e0303c;
+  --ui-cool: #2f7ee8;
+  --ui-heat: #f0563a;
+  --ui-heat-soft: #fde6e1;
+  --ui-cool-soft: #dcecfd;
+  --ui-scrim: rgb(13 27 46 / 0.3);
+  --ui-shadow: 0 1px 2px rgb(13 27 46 / 0.06), 0 6px 18px rgb(13 27 46 / 0.08);
+  --ui-shadow-pop: 0 18px 50px rgb(13 27 46 / 0.22), 0 2px 6px rgb(13 27 46 / 0.1);
+
+  --map-land: #edf0f3;
+  --map-block: #e1e6ec;
+  --map-park: #d3eadb;
+  --map-water: #a3cdf0;
+  --map-road: #ffffff;
+  --map-road-edge: #d2d9e2;
+  --map-major: #fbe3a0;
+  --map-route: #0f7ae5;
+  --map-route-edge: #ffffff;
+
+  font-family: var(--font-sans);
+  color: var(--ui-ink);
+  transition: background-color 0.5s var(--ease-ui), color 0.5s var(--ease-ui);
+}
+
+.vw-id3.night {
+  --ui-bg: #070a0f;
+  --ui-drive: #0b0f15;
+  --ui-surface: #151b24;
+  --ui-surface-2: #1d2530;
+  --ui-surface-3: #2a3340;
+  --ui-line: #242c37;
+  --ui-ink: #eef3f9;
+  --ui-ink-2: #9eabbc;
+  --ui-ink-3: #5f6b7b;
+  --ui-accent: #2f9bff;
+  --ui-accent-soft: #10304f;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #3fd27f;
+  --ui-warn: #ff9a1f;
+  --ui-crit: #ff4b57;
+  --ui-cool: #4aa3ff;
+  --ui-heat: #ff6a4a;
+  --ui-heat-soft: #45201a;
+  --ui-cool-soft: #10304f;
+  --ui-scrim: rgb(0 0 0 / 0.55);
+  --ui-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  --ui-shadow-pop: 0 18px 50px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.05);
+
+  --map-land: #18202a;
+  --map-block: #1f2833;
+  --map-park: #17291f;
+  --map-water: #12324d;
+  --map-road: #2f3a47;
+  --map-road-edge: #10151b;
+  --map-major: #435064;
+  --map-route: #2f9bff;
+  --map-route-edge: #08121e;
+}

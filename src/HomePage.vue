@@ -75,7 +75,19 @@ function open(id: string) {
                 </div>
                 <div class="absolute inset-x-3 bottom-2.5 flex h-4 items-center gap-1.5 rounded-md bg-white px-2"><span v-for="i in 7" :key="i" class="size-2 rounded-sm" :class="i === 3 ? 'bg-[#2f7bf6]' : 'bg-[#cfd3da]'" /></div>
               </div>
-              <div v-else class="h-[132px] w-[250px] rounded-[10px] bg-[#101114] p-1.5 shadow-[0_0_0_4px_#050608,0_18px_36px_rgb(0_0_0/0.55)] transition-transform duration-500 group-hover:scale-[1.04]">
+              <!-- ID.3 : barre de favoris, menu des applis, barre de climatisation -->
+              <div v-else-if="b.id === 'vw-id3'" class="flex h-[140px] w-[230px] flex-col rounded-[12px] bg-[#070a0f] p-1.5 shadow-[0_0_0_4px_#050608,0_18px_36px_rgb(0_0_0/0.55)] transition-transform duration-500 group-hover:scale-[1.04]">
+                <div class="flex h-4 items-center gap-1 px-1"><span class="size-2 rounded-sm bg-[#2f9bff]" /><span v-for="i in 4" :key="i" class="size-2 rounded-sm bg-[#5f6b7b]" /><span class="ml-auto h-1 w-6 rounded bg-[#9eabbc]" /></div>
+                <div class="grid flex-1 grid-cols-5 place-items-center gap-1 px-3 py-1.5"><span v-for="(c, i) in ['#34d27a', '#ff4d6a', '#2f9bff', '#c7d0db', '#4aa3ff', '#2f7ee8', '#3fd27f', '#7fc4ff', '#4ad6d6', '#c7d0db']" :key="i" class="size-5 rounded-md bg-[#1d2530] ring-1 ring-white/5" :style="{ boxShadow: `inset 0 0 0 5px #1d2530, inset 0 0 0 9px ${c}` }" /></div>
+                <div class="flex h-4 items-center gap-1.5 rounded-sm bg-[#151b24] px-1.5"><span class="h-1.5 w-4 rounded bg-white/80" /><span class="h-1 w-3 rounded bg-[#ff9a1f]" /><span class="mx-auto size-2 rounded-[2px] border border-[#2f9bff]" /><span class="h-1.5 w-4 rounded bg-white/80" /></div>
+              </div>
+              <!-- Enyaq : raccourcis en haut, Laura et carte, barre inférieure -->
+              <div v-else-if="b.id === 'skoda-enyaq'" class="flex h-[132px] w-[250px] flex-col rounded-[12px] bg-[#121517] p-1.5 shadow-[0_0_0_4px_#050608,0_18px_36px_rgb(0_0_0/0.55)] transition-transform duration-500 group-hover:scale-[1.04]">
+                <div class="flex h-4 items-center gap-1 px-1"><span class="size-2 rounded-sm bg-white/80" /><span v-for="i in 5" :key="i" class="size-2 rounded-sm" :class="i === 2 ? 'bg-[#78faae]' : 'bg-[#66706d]'" /><span class="mx-auto h-1 w-5 rounded bg-white/70" /></div>
+                <div class="grid flex-1 grid-cols-[34%_1fr] gap-1 py-1"><div class="flex flex-col gap-1"><div class="flex-1 rounded-md bg-[#23282b] p-1"><span class="block size-1.5 rounded-full bg-[#78faae]" /><span class="mt-1 block h-1 w-10 rounded bg-white/60" /></div><div class="flex-1 rounded-md bg-[#23282b]" /></div><div class="relative rounded-md bg-[#1d2224]"><div class="absolute top-5 left-3 h-[3px] w-24 rotate-[15deg] rounded bg-[#384046]" /><div class="absolute top-10 left-10 h-[3px] w-16 rotate-[-25deg] rounded bg-[#78faae]/80" /></div></div>
+                <div class="flex h-4 items-center justify-between px-1"><span class="h-1.5 w-8 rounded bg-white/70" /><span class="flex gap-1"><span class="size-2 rounded-sm bg-[#78faae]" /><span v-for="i in 4" :key="i" class="size-2 rounded-sm bg-[#66706d]" /></span><span class="h-1.5 w-8 rounded bg-white/70" /></div>
+              </div>
+              <div v-else-if="b.id === 'tesla'" class="h-[132px] w-[250px] rounded-[10px] bg-[#101114] p-1.5 shadow-[0_0_0_4px_#050608,0_18px_36px_rgb(0_0_0/0.55)] transition-transform duration-500 group-hover:scale-[1.04]">
                 <div class="grid h-full grid-cols-[30%_1fr] gap-1.5">
                   <div class="rounded-md bg-[#17181c] p-1.5"><div class="h-5 w-8 rounded bg-white/90" /><div class="mt-2.5 h-9 rounded-md bg-gradient-to-b from-[#2a2c32] to-[#1e2025]" /></div>
                   <div class="relative rounded-md bg-[#20242b]"><div class="absolute top-4 left-3 h-[3px] w-20 rotate-[18deg] rounded bg-[#3a414c]" /><div class="absolute top-9 left-8 h-[3px] w-16 rotate-[-30deg] rounded bg-[#4d5563]" /><div class="absolute right-3 bottom-3 h-12 w-16 rounded-md bg-[#17181c]/95 ring-1 ring-white/10" /></div>

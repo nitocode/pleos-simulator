@@ -1,0 +1,83 @@
+/*
+ * Škoda Enyaq (logiciel 2024, nouvelle identité Škoda) : jetons --ui-* (voir src/styles/main.css).
+ * Les infographies officielles montrent un fond sombre dégradé et un accent vert « Electric Green » ;
+ * la variante claire sert de mode jour (accent émeraude).
+ */
+.skoda-enyaq {
+  --ui-bg: #eceeed;
+  --ui-drive: #ffffff;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #eef1f0;
+  --ui-surface-3: #dce1df;
+  --ui-line: #e1e5e3;
+  --ui-ink: #0e1a17;
+  --ui-ink-2: #56625e;
+  --ui-ink-3: #98a29e;
+  --ui-accent: #0e8a5f;
+  --ui-accent-soft: #d6f5e6;
+  --ui-on-accent: #ffffff;
+  --ui-ok: #0e8a5f;
+  --ui-warn: #e58a00;
+  --ui-crit: #e5383b;
+  --ui-cool: #2f7ee8;
+  --ui-heat: #ec4d37;
+  --ui-heat-soft: #fde6e1;
+  --ui-cool-soft: #dcebfd;
+  --ui-scrim: rgb(14 26 23 / 0.3);
+  --ui-shadow: 0 1px 2px rgb(14 26 23 / 0.06), 0 6px 18px rgb(14 26 23 / 0.08);
+  --ui-shadow-pop: 0 18px 50px rgb(14 26 23 / 0.22), 0 2px 6px rgb(14 26 23 / 0.1);
+
+  --map-land: #eef1ee;
+  --map-block: #e1e6e2;
+  --map-park: #cfe8d4;
+  --map-water: #a6cfe9;
+  --map-road: #ffffff;
+  --map-road-edge: #d2dad5;
+  --map-major: #f3e3a6;
+  --map-route: #0e8a5f;
+  --map-route-edge: #ffffff;
+
+  font-family: var(--font-sans);
+  color: var(--ui-ink);
+  transition: background-color 0.5s var(--ease-ui), color 0.5s var(--ease-ui);
+}
+
+.skoda-enyaq.night {
+  --ui-bg: #121517;
+  --ui-drive: #16191b;
+  --ui-surface: #23282b;
+  --ui-surface-2: #2c3236;
+  --ui-surface-3: #394045;
+  --ui-line: #2f3539;
+  --ui-ink: #f1f4f3;
+  --ui-ink-2: #a7b0ad;
+  --ui-ink-3: #66706d;
+  --ui-accent: #78faae;
+  --ui-accent-soft: #163a2c;
+  --ui-on-accent: #0e3a2f;
+  --ui-ok: #78faae;
+  --ui-warn: #ffb547;
+  --ui-crit: #ff5a5f;
+  --ui-cool: #5aa2ff;
+  --ui-heat: #ff6a4d;
+  --ui-heat-soft: #45221b;
+  --ui-cool-soft: #16304e;
+  --ui-scrim: rgb(0 0 0 / 0.55);
+  --ui-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  --ui-shadow-pop: 0 18px 50px rgb(0 0 0 / 0.65), 0 0 0 1px rgb(255 255 255 / 0.05);
+
+  --map-land: #1d2224;
+  --map-block: #252b2e;
+  --map-park: #1a2c23;
+  --map-water: #173246;
+  --map-road: #384046;
+  --map-road-edge: #14181a;
+  --map-major: #4a5359;
+  --map-route: #78faae;
+  --map-route-edge: #0d1a14;
+}
+
+/* Fond dégradé des écrans, comme sur les infographies. */
+.skoda-enyaq .sk-backdrop {
+  background: radial-gradient(120% 90% at 10% 0%, color-mix(in srgb, var(--ui-surface-3) 60%, transparent), transparent 60%), var(--ui-bg);
+}

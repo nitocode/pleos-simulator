@@ -68,6 +68,8 @@ export const useVehicleStore = defineStore('vehicle', () => {
   const spec = ref<VehicleSpec>(IONIQ3_SPEC)
   const batteryTemp = ref(24)
   const chargerKw = ref(150)
+  /** Préchauffage de la batterie lancé à la main (menu de recharge) avant une recharge rapide. */
+  const preheatOn = ref(false)
   /** Séance de charge en cours : énergie reçue, durée et relevé (état de charge, puissance) pour la courbe. */
   const session = reactive({ active: false, kwh: 0, seconds: 0, startSoc: 0, points: [] as { soc: number; kw: number }[] })
   let regenTicks = 0
@@ -408,7 +410,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
         kw: cs.kw,
         speed: speed.value,
         outside: outsideTemp.value,
-        preheat: charge.preconditioning && plug.value === 'none' && nav.destination?.kind === 'charger',
+        preheat: plug.value === 'none' && (preheatOn.value || (charge.preconditioning && nav.destination?.kind === 'charger')),
       })
     }
     if (session.active) {
@@ -427,7 +429,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
   }
 
   return {
-    gear, ready, spec, speed, power, battery, batteryTemp, chargerKw, session, odometer, trip, tripMinutes, consumption, outsideTemp, plug, turn, hazard, cruise, cruiseSpeed,
+    gear, ready, spec, preheatOn, speed, power, battery, batteryTemp, chargerKw, session, odometer, trip, tripMinutes, consumption, outsideTemp, plug, turn, hazard, cruise, cruiseSpeed,
     features, climate, media, nav, call, body, charge,
     moving, range, speedLimit, overLimit, chargeInfo, lkaActive, currentTrack, currentStation,
     onEvent, setGear, maxSpeed, setSpeed, setBattery, setChargerKw, setReady, setSpec, toggleTurn, toggleHazard, toggleCruise, paddle, setPlug,

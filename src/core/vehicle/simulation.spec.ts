@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { ChargeSettings } from './types'
 import { MODEL3_SPEC } from '@/brands/tesla'
+import { ID3_SPEC } from '@/brands/vw-id3'
+import { ENYAQ_SPEC } from '@/brands/skoda-enyaq'
 import { BRANDS } from '@/brands'
 import { IONIQ3_SPEC, chargeKw, chargeMinutes, chargeStatus, nextBatteryTemp, tempFactor } from './simulation'
 
@@ -59,6 +61,17 @@ describe('modèles', () => {
     expect(min).toBeGreaterThan(24)
     expect(min).toBeLessThan(29)
     expect(chargeKw(10, 'dc', DEFAULT_CHARGE, { ...warm, spec: MODEL3_SPEC })).toBeGreaterThan(chargeKw(10, 'dc', DEFAULT_CHARGE, { ...warm, spec: IONIQ3_SPEC }))
+  })
+
+  it('ID.3 Pro S et Enyaq 85 : 10→80 % en ≈ 28 min (relevés publics), pics de 175 et 135 kW', () => {
+    for (const [spec, peak] of [[ID3_SPEC, 175], [ENYAQ_SPEC, 135]] as const) {
+      const min = chargeMinutes(10, 80, 'dc', DEFAULT_CHARGE, { ...warm, spec })
+      expect(min).toBeGreaterThan(26.5)
+      expect(min).toBeLessThan(29.5)
+      expect(Math.max(...spec.dcCurve.map(([, kw]) => kw))).toBe(peak)
+    }
+    // une borne de 50 kW plafonne la recharge quelle que soit la batterie
+    expect(chargeKw(20, 'dc', DEFAULT_CHARGE, { batteryTemp: 28, chargerKw: 50, spec: ID3_SPEC })).toBe(50)
   })
 
   it('chaque interface déclare une courbe de charge complète de 0 à 100 %', () => {

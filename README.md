@@ -1,6 +1,6 @@
 # Simulateur d'interfaces auto
 
-Banc d'essai web **non officiel** pour tester des interfaces multimédia de voitures dans un navigateur. Une page d'accueil permet de choisir la marque, puis le modèle : **Hyundai Ioniq 3** (Pleos Connect) et **Tesla Model 3**.
+Banc d'essai web **non officiel** pour tester des interfaces multimédia de voitures dans un navigateur. Une page d'accueil permet de choisir la marque, puis le modèle : **Hyundai Ioniq 3** (Pleos Connect), **Tesla Model 3**, **Volkswagen ID.3** (2024) et **Škoda Enyaq** (2024).
 
 Site : https://nitocode.github.io/pleos-simulator/
 
@@ -17,6 +17,24 @@ Reconstitution d'après le manuel du conducteur du Model 3 (2024+) :
 - **Climatisation** : fenêtre rapide (< >) et écran principal avec l'habitacle, Auto, A/C, sièges chauffants à 3 niveaux, volant, dégivreurs, ventilation, air recyclé, Séparer ; Maintien de la climatisation, Mode Animaux (écran de température) et Mode Camping.
 - **Apps** : Multimédia, Téléphone, Recharge (courbe de charge), Énergie, Caméra de recul, Météo.
 - **Commandes du volant** : bouton de défilement gauche (volume, morceau, appels), redémarrage de l'écran par appui long.
+
+## Volkswagen ID.3 (2024)
+
+D'après le communiqué Volkswagen 49/2024 et les photos officielles de l'écran (`docs/models/vw-id3.md`) :
+
+- **Écran 12,9″** : barre supérieure (menu principal, favoris assignables, température extérieure, heure), menu des applis (Téléphone, Radio/Médias, Navigation, Véhicule, App-Connect, Parking, Recharge, Clim. à l'arrêt, Assistants, Réglages, IDA, Wellness), barre de climatisation toujours visible avec le bouton Accueil.
+- **Climatisation** AirCare bizone et Smart Climate (« Pieds chauds », « Vue dégagée »), **recharge** avec niveau cible, courbe et préconditionnement manuel de la batterie, **assistant IDA**, app **Wellness** (Fresh Up, Calm Down, Power Break).
+- **Commandes physiques** : curseurs tactiles rétroéclairés (température, volume), commodo de marche séparé (D/B, N, R, P), volant multifonction ; **ID. Light** et Digital Cockpit.
+
+## Škoda Enyaq (2024)
+
+D'après le dossier de presse et les infographies « Explore Enyaq 2024 » (`docs/models/skoda-enyaq.md`) :
+
+- **Écran 13″** : trois boutons de base (Paramètres du véhicule, Accueil, Apps), jusqu'à cinq raccourcis véhicule en haut et trois raccourcis d'apps en bas, accueil avec **Laura** et la carte.
+- **Paramètres du véhicule** en tuiles et édition des favoris, **climatisation** (AUTO et son intensité, flux d'air, « Air frais », « Pieds chauds », « Mains chaudes »), **recharge** avec optimisation de la recharge rapide (capacité actuelle selon la température, chauffage de la batterie), lieux et réglages.
+- Les commandes physiques sont une reconstitution (non vérifiées sur une source 2024).
+
+Les deux interfaces partagent `src/brands/meb/` (plateforme MEB du groupe Volkswagen) : carte, médias, téléphone, courbe de charge, curseur tactile, écran conducteur, commandes vocales.
 
 ## Ce que contient Pleos
 
@@ -70,7 +88,10 @@ src/
 │  └─ format.ts
 ├─ brands/
 │  ├─ index.ts              # registre des marques
-│  ├─ tesla/                # Model 3 : TeslaCockpit, store, components/, apps/, theme.css
+│  ├─ tesla/                # Model 3 : TeslaCockpit, store, components/, apps/, three/, theme.css
+│  ├─ meb/                  # socle commun ID.3 / Enyaq (store, voix, composants partagés)
+│  ├─ vw-id3/               # ID.3 : VwId3Cockpit, store, catalog, components/
+│  ├─ skoda-enyaq/          # Enyaq : SkodaEnyaqCockpit, store, catalog, components/
 │  └─ pleos/
 │     ├─ index.ts           # BrandDefinition (tailles d'écran, cockpit chargé à la demande)
 │     ├─ theme.css          # valeurs des jetons --ui-* jour / nuit
@@ -94,6 +115,9 @@ Trois principes :
 - **Une marque est chargée à la demande.** Son code n'est téléchargé qu'à l'ouverture de `#/<id>`.
 
 ## Ajouter une marque
+
+Le dépôt fournit deux skills Claude Code dans `.claude/skills/` : `car-model-research` (manuels, captures officielles, caractéristiques de recharge, fiche `docs/models/<id>.md`) et `add-car-model` (procédure complète, avec `scripts/new_brand.py` pour le squelette et `scripts/calibrate_curve.py` pour caler la courbe de charge). La procédure manuelle :
+
 
 1. Créer `src/brands/<id>/theme.css` :
 
@@ -154,3 +178,6 @@ Dans les réglages du dépôt, choisir **Settings → Pages → Source : GitHub 
 - Visuels de presse Hyundai Motor Group
 - Manuel du conducteur du Model 3 (français, 2024+) : tesla.com/ownersmanual/model3
 - Fiches techniques Hyundai et relevés publics (ev-database) pour la batterie et la courbe de charge
+- Volkswagen Newsroom (communiqué 49/2024) et volkswagen.fr (fiche infodivertissement de l'ID.3)
+- Škoda Storyboard (dossier de presse et infographies « Explore Enyaq 2024 »)
+- Détail des sources par modèle : `docs/models/`
